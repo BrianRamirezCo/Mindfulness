@@ -1,73 +1,103 @@
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
-import { brandOptionsMap, categoryOptionsMap } from "@/config";
+import { categoryOptionsMap } from "@/config";
 import { Badge } from "../ui/badge";
+import { BookOpen, Download } from "lucide-react";
 
-function ShoppingProductTile({
-  product,
-  handleGetProductDetails,
-  handleAddtoCart,
-}) {
+function ShoppingProductTile({ product, handleAddtoCart }) {
+  const navigate = useNavigate();
+  const isEbook = product?.type === "ebook";
+  const isOutOfStock = !isEbook && product?.totalStock === 0;
+  const isLowStock =
+    !isEbook && product?.totalStock < 10 && product?.totalStock > 0;
+
   return (
-    <Card className="w-full max-w-sm mx-auto">
-      <div onClick={() => handleGetProductDetails(product?._id)}>
-        <div className="relative">
+    <Card className="w-full max-w-sm mx-auto border-border/50 hover:border-primary/30 hover:shadow-md transition-all duration-200 cursor-pointer group">
+      <div onClick={() => navigate(`/shop/product/${product?._id}`)}>
+        <div className="relative overflow-hidden rounded-t-lg">
           <img
             src={product?.image}
             alt={product?.title}
-            className="w-full h-[300px] object-cover rounded-t-lg"
+            className="w-full h-[280px] object-cover group-hover:scale-105 transition-transform duration-300"
           />
-          {product?.totalStock === 0 ? (
-            <Badge className="absolute top-2 left-2 bg-red-500 hover:bg-red-600">
-              Out Of Stock
+
+          {/* Badges */}
+          {isOutOfStock ? (
+            <Badge className="absolute top-2 left-2 bg-foreground/70 hover:bg-foreground/80 text-background text-xs">
+              Sin stock
             </Badge>
-          ) : product?.totalStock < 10 ? (
-            <Badge className="absolute top-2 left-2 bg-red-500 hover:bg-red-600">
-              {`Only ${product?.totalStock} items left`}
+          ) : isLowStock ? (
+            <Badge className="absolute top-2 left-2 bg-primary/80 hover:bg-primary text-primary-foreground text-xs">
+              Últimos {product.totalStock}
             </Badge>
           ) : product?.salePrice > 0 ? (
-            <Badge className="absolute top-2 left-2 bg-red-500 hover:bg-red-600">
-              Sale
+            <Badge className="absolute top-2 left-2 bg-secondary hover:bg-secondary/90 text-foreground text-xs tracking-wide">
+              Oferta
             </Badge>
           ) : null}
-        </div>
-        <CardContent className="p-4">
-          <h2 className="text-xl font-bold mb-2">{product?.title}</h2>
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-[16px] text-muted-foreground">
-              {categoryOptionsMap[product?.category]}
-            </span>
-            <span className="text-[16px] text-muted-foreground">
-              {brandOptionsMap[product?.brand]}
+
+          {/* Tipo de libro */}
+          <div className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1">
+            {isEbook ? (
+              <Download className="w-3 h-3 text-primary" />
+            ) : (
+              <BookOpen className="w-3 h-3 text-primary" />
+            )}
+            <span className="text-[10px] text-foreground/70 tracking-wide">
+              {isEbook ? "Ebook" : "Físico"}
             </span>
           </div>
-          <div className="flex justify-between items-center mb-2">
+        </div>
+
+        <CardContent className="p-4">
+          <h2 className="font-serif text-lg font-semibold text-foreground mb-1 line-clamp-2 leading-snug">
+            {product?.title}
+          </h2>
+          {product?.author && (
+            <p className="text-sm text-foreground/50 mb-2">{product.author}</p>
+          )}
+          <span className="text-xs text-foreground/40 tracking-wide uppercase">
+            {categoryOptionsMap[product?.category]}
+          </span>
+
+          <div className="flex items-center gap-3 mt-3">
             <span
-              className={`${
-                product?.salePrice > 0 ? "line-through" : ""
-              } text-lg font-semibold text-primary`}
+              className={`text-base font-semibold ${
+                product?.salePrice > 0
+                  ? "line-through text-foreground/30"
+                  : "text-primary"
+              }`}
             >
               ${product?.price}
             </span>
-            {product?.salePrice > 0 ? (
-              <span className="text-lg font-semibold text-primary">
+            {product?.salePrice > 0 && (
+              <span className="text-base font-bold text-primary">
                 ${product?.salePrice}
               </span>
-            ) : null}
+            )}
           </div>
         </CardContent>
       </div>
-      <CardFooter>
-        {product?.totalStock === 0 ? (
-          <Button className="w-full opacity-60 cursor-not-allowed">
-            Out Of Stock
+
+      <CardFooter className="pt-0 px-4 pb-4">
+        {isOutOfStock ? (
+          <Button
+            disabled
+            className="w-full opacity-50 cursor-not-allowed"
+            variant="outline"
+          >
+            Sin stock
           </Button>
         ) : (
           <Button
-            onClick={() => handleAddtoCart(product?._id, product?.totalStock)}
-            className="w-full"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAddtoCart(product?._id, product?.totalStock);
+            }}
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground tracking-wide"
           >
-            Add to cart
+            {isEbook ? "Comprar ebook" : "Agregar al carrito"}
           </Button>
         )}
       </CardFooter>

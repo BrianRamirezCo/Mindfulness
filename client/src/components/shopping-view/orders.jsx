@@ -18,6 +18,34 @@ import {
   resetOrderDetails,
 } from "@/store/shop/order-slice";
 import { Badge } from "../ui/badge";
+import { PackageOpen } from "lucide-react";
+
+const statusMap = {
+  pending: {
+    label: "Pendiente",
+    class: "bg-primary/20 text-primary border-primary/30",
+  },
+  confirmed: {
+    label: "Confirmado",
+    class: "bg-secondary/40 text-foreground border-secondary/50",
+  },
+  inProcess: {
+    label: "En proceso",
+    class: "bg-primary/30 text-primary border-primary/40",
+  },
+  inShipping: {
+    label: "En camino",
+    class: "bg-secondary/50 text-foreground border-secondary/60",
+  },
+  delivered: {
+    label: "Entregado",
+    class: "bg-secondary/60 text-foreground border-secondary/70",
+  },
+  rejected: {
+    label: "Rechazado",
+    class: "bg-destructive/20 text-destructive border-destructive/30",
+  },
+};
 
 function ShoppingOrders() {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
@@ -37,46 +65,60 @@ function ShoppingOrders() {
     if (orderDetails !== null) setOpenDetailsDialog(true);
   }, [orderDetails]);
 
-  console.log(orderDetails, "orderDetails");
-
   return (
-    <Card>
+    <Card className="border-border/50">
       <CardHeader>
-        <CardTitle>Order History</CardTitle>
+        <CardTitle className="font-serif text-xl tracking-wide font-normal">
+          Historial de pedidos
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Order ID</TableHead>
-              <TableHead>Order Date</TableHead>
-              <TableHead>Order Status</TableHead>
-              <TableHead>Order Price</TableHead>
-              <TableHead>
-                <span className="sr-only">Details</span>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {orderList && orderList.length > 0
-              ? orderList.map((orderItem) => (
-                  <TableRow>
-                    <TableCell>{orderItem?._id}</TableCell>
-                    <TableCell>{orderItem?.orderDate.split("T")[0]}</TableCell>
+        {orderList && orderList.length > 0 ? (
+          <Table>
+            <TableHeader>
+              <TableRow className="border-border/40">
+                <TableHead className="text-xs uppercase tracking-widest text-foreground/50 font-sans">
+                  ID
+                </TableHead>
+                <TableHead className="text-xs uppercase tracking-widest text-foreground/50 font-sans">
+                  Fecha
+                </TableHead>
+                <TableHead className="text-xs uppercase tracking-widest text-foreground/50 font-sans">
+                  Estado
+                </TableHead>
+                <TableHead className="text-xs uppercase tracking-widest text-foreground/50 font-sans">
+                  Total
+                </TableHead>
+                <TableHead>
+                  <span className="sr-only">Detalles</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {orderList.map((orderItem) => {
+                const status = statusMap[orderItem?.orderStatus] || {
+                  label: orderItem?.orderStatus,
+                  class: "bg-muted text-foreground/60 border-border/40",
+                };
+                return (
+                  <TableRow key={orderItem?._id} className="border-border/30">
+                    <TableCell className="text-xs text-foreground/40 font-mono">
+                      ...{orderItem?._id?.slice(-8)}
+                    </TableCell>
+                    <TableCell className="text-sm text-foreground/70 font-sans">
+                      {orderItem?.orderDate.split("T")[0]}
+                    </TableCell>
                     <TableCell>
                       <Badge
-                        className={`py-1 px-3 ${
-                          orderItem?.orderStatus === "confirmed"
-                            ? "bg-green-500"
-                            : orderItem?.orderStatus === "rejected"
-                            ? "bg-red-600"
-                            : "bg-black"
-                        }`}
+                        variant="outline"
+                        className={`text-xs px-2 py-0.5 font-sans tracking-wide border ${status.class}`}
                       >
-                        {orderItem?.orderStatus}
+                        {status.label}
                       </Badge>
                     </TableCell>
-                    <TableCell>${orderItem?.totalAmount}</TableCell>
+                    <TableCell className="text-sm font-semibold text-primary font-sans">
+                      ${orderItem?.totalAmount}
+                    </TableCell>
                     <TableCell>
                       <Dialog
                         open={openDetailsDialog}
@@ -86,20 +128,31 @@ function ShoppingOrders() {
                         }}
                       >
                         <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-xs border-border/40 hover:border-primary/40 hover:bg-primary/5 font-sans tracking-wide"
                           onClick={() =>
                             handleFetchOrderDetails(orderItem?._id)
                           }
                         >
-                          View Details
+                          Ver detalle
                         </Button>
                         <ShoppingOrderDetailsView orderDetails={orderDetails} />
                       </Dialog>
                     </TableCell>
                   </TableRow>
-                ))
-              : null}
-          </TableBody>
-        </Table>
+                );
+              })}
+            </TableBody>
+          </Table>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-16 gap-3">
+            <PackageOpen className="w-10 h-10 text-foreground/20" />
+            <p className="text-sm text-foreground/40 font-sans tracking-wide">
+              Todavía no tenés pedidos
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

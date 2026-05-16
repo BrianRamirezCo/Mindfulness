@@ -1,5 +1,5 @@
+// auth/register.jsx
 import CommonForm from "@/components/common/form";
-import { useToast } from "@/components/ui/use-toast";
 import { registerFormControls } from "@/config";
 import { registerUser } from "@/store/auth-slice";
 import { useState } from "react";
@@ -14,52 +14,79 @@ const initialState = {
 
 function AuthRegister() {
   const [formData, setFormData] = useState(initialState);
+  const [error, setError] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   function onSubmit(event) {
     event.preventDefault();
+    setError("");
+
     dispatch(registerUser(formData)).then((data) => {
       if (data?.payload?.success) {
-        toast({
-          title: data?.payload?.message,
-        });
         navigate("/auth/login");
       } else {
-        toast({
-          title: data?.payload?.message,
-          variant: "destructive",
-        });
+        setError(
+          data?.payload?.message ||
+            "Hubo un error al registrarte. Intentá de nuevo.",
+        );
       }
     });
   }
 
-  console.log(formData);
-
   return (
-    <div className="mx-auto w-full max-w-md space-y-6">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Create new account
+    <div className="space-y-6">
+      <div className="text-center space-y-1">
+        <h1 className="font-serif text-3xl text-foreground tracking-wide">
+          Crear cuenta
         </h1>
-        <p className="mt-2">
-          Already have an account
-          <Link
-            className="font-medium ml-2 text-primary hover:underline"
-            to="/auth/login"
-          >
-            Login
-          </Link>
+        <p className="text-sm text-foreground/50 font-sans">
+          Completá tus datos para registrarte
         </p>
       </div>
+
+      {error && (
+        <p className="text-sm text-destructive font-sans text-center bg-destructive/5 border border-destructive/20 rounded-lg py-2 px-4">
+          {error}
+        </p>
+      )}
+
       <CommonForm
         formControls={registerFormControls}
-        buttonText={"Sign Up"}
+        buttonText="Registrarse"
         formData={formData}
         setFormData={setFormData}
         onSubmit={onSubmit}
       />
+
+      <div className="text-center space-y-3 pt-2">
+        <p className="text-sm text-foreground/50 font-sans">
+          ¿Ya tenés cuenta?{" "}
+          <Link
+            className="text-primary hover:underline font-medium"
+            to="/auth/login"
+          >
+            Ingresá
+          </Link>
+        </p>
+        <div className="flex items-center justify-center gap-3">
+          <div className="h-px w-16 bg-border/40" />
+          <span className="text-xs text-foreground/30 font-sans tracking-widest uppercase">
+            o
+          </span>
+          <div className="h-px w-16 bg-border/40" />
+        </div>
+        <p className="text-xs text-foreground/30 font-sans leading-relaxed">
+          Al registrarte aceptás nuestros{" "}
+          <span className="underline cursor-pointer hover:text-foreground/50">
+            Términos y condiciones
+          </span>{" "}
+          y{" "}
+          <span className="underline cursor-pointer hover:text-foreground/50">
+            Política de privacidad
+          </span>
+        </p>
+      </div>
     </div>
   );
 }

@@ -8,7 +8,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { useToast } from "@/components/ui/use-toast";
 import { addProductFormElements } from "@/config";
 import {
   addNewProduct,
@@ -22,13 +21,13 @@ import { useDispatch, useSelector } from "react-redux";
 const initialFormData = {
   image: null,
   title: "",
+  author: "",
   description: "",
   category: "",
-  brand: "",
+  type: "",
   price: "",
   salePrice: "",
   totalStock: "",
-  averageReview: 0,
 };
 
 function AdminProducts() {
@@ -42,43 +41,31 @@ function AdminProducts() {
 
   const { productList } = useSelector((state) => state.adminProducts);
   const dispatch = useDispatch();
-  const { toast } = useToast();
 
   function onSubmit(event) {
     event.preventDefault();
 
     currentEditedId !== null
-      ? dispatch(
-          editProduct({
-            id: currentEditedId,
-            formData,
-          })
-        ).then((data) => {
-          console.log(data, "edit");
-
-          if (data?.payload?.success) {
-            dispatch(fetchAllProducts());
-            setFormData(initialFormData);
-            setOpenCreateProductsDialog(false);
-            setCurrentEditedId(null);
-          }
-        })
-      : dispatch(
-          addNewProduct({
-            ...formData,
-            image: uploadedImageUrl,
-          })
-        ).then((data) => {
-          if (data?.payload?.success) {
-            dispatch(fetchAllProducts());
-            setOpenCreateProductsDialog(false);
-            setImageFile(null);
-            setFormData(initialFormData);
-            toast({
-              title: "Product add successfully",
-            });
-          }
-        });
+      ? dispatch(editProduct({ id: currentEditedId, formData })).then(
+          (data) => {
+            if (data?.payload?.success) {
+              dispatch(fetchAllProducts());
+              setFormData(initialFormData);
+              setOpenCreateProductsDialog(false);
+              setCurrentEditedId(null);
+            }
+          },
+        )
+      : dispatch(addNewProduct({ ...formData, image: uploadedImageUrl })).then(
+          (data) => {
+            if (data?.payload?.success) {
+              dispatch(fetchAllProducts());
+              setOpenCreateProductsDialog(false);
+              setImageFile(null);
+              setFormData(initialFormData);
+            }
+          },
+        );
   }
 
   function handleDelete(getCurrentProductId) {
@@ -91,7 +78,7 @@ function AdminProducts() {
 
   function isFormValid() {
     return Object.keys(formData)
-      .filter((currentKey) => currentKey !== "averageReview")
+      .filter((key) => key !== "salePrice" && key !== "image")
       .map((key) => formData[key] !== "")
       .every((item) => item);
   }
@@ -100,28 +87,48 @@ function AdminProducts() {
     dispatch(fetchAllProducts());
   }, [dispatch]);
 
-  console.log(formData, "productList");
-
   return (
     <Fragment>
-      <div className="mb-5 w-full flex justify-end">
-        <Button onClick={() => setOpenCreateProductsDialog(true)}>
-          Add New Product
+      <div className="mb-6 w-full flex justify-between items-center">
+        <div>
+          <h1 className="font-serif text-2xl text-foreground tracking-wide">
+            Libros
+          </h1>
+          <p className="text-sm text-foreground/50 mt-1">
+            {productList?.length || 0}{" "}
+            {productList?.length === 1 ? "libro" : "libros"} cargados
+          </p>
+        </div>
+        <Button
+          onClick={() => setOpenCreateProductsDialog(true)}
+          className="bg-primary hover:bg-primary/90 text-primary-foreground tracking-wide"
+        >
+          Agregar libro
         </Button>
       </div>
+
       <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
-        {productList && productList.length > 0
-          ? productList.map((productItem) => (
-              <AdminProductTile
-                setFormData={setFormData}
-                setOpenCreateProductsDialog={setOpenCreateProductsDialog}
-                setCurrentEditedId={setCurrentEditedId}
-                product={productItem}
-                handleDelete={handleDelete}
-              />
-            ))
-          : null}
+        {productList && productList.length > 0 ? (
+          productList.map((productItem) => (
+            <AdminProductTile
+              key={productItem._id}
+              setFormData={setFormData}
+              setOpenCreateProductsDialog={setOpenCreateProductsDialog}
+              setCurrentEditedId={setCurrentEditedId}
+              product={productItem}
+              handleDelete={handleDelete}
+            />
+          ))
+        ) : (
+          <div className="col-span-4 text-center py-16 text-foreground/40">
+            <p className="font-serif text-lg">No hay libros cargados todavía</p>
+            <p className="text-sm mt-1">
+              Agregá el primero con el botón de arriba
+            </p>
+          </div>
+        )}
       </div>
+
       <Sheet
         open={openCreateProductsDialog}
         onOpenChange={() => {
@@ -132,8 +139,8 @@ function AdminProducts() {
       >
         <SheetContent side="right" className="overflow-auto">
           <SheetHeader>
-            <SheetTitle>
-              {currentEditedId !== null ? "Edit Product" : "Add New Product"}
+            <SheetTitle className="font-serif text-xl tracking-wide">
+              {currentEditedId !== null ? "Editar libro" : "Agregar libro"}
             </SheetTitle>
           </SheetHeader>
           <ProductImageUpload
@@ -150,7 +157,9 @@ function AdminProducts() {
               onSubmit={onSubmit}
               formData={formData}
               setFormData={setFormData}
-              buttonText={currentEditedId !== null ? "Edit" : "Add"}
+              buttonText={
+                currentEditedId !== null ? "Guardar cambios" : "Agregar libro"
+              }
               formControls={addProductFormElements}
               isBtnDisabled={!isFormValid()}
             />

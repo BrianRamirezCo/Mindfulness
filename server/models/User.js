@@ -13,7 +13,11 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
+    required: false, // no requerido para usuarios de Google
+  },
+  googleId: {
+    type: String,
+    default: null,
   },
   role: {
     type: String,
