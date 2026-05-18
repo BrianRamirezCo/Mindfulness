@@ -4,6 +4,7 @@ import { loginUser } from "@/store/auth-slice";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import { API_URL } from "@/lib/api";
 
 const initialState = {
   email: "",
@@ -27,7 +28,7 @@ function AuthLogin() {
   }
 
   function handleGoogleLogin() {
-    window.location.href = "http://localhost:5000/api/auth/google";
+    window.location.href = `${API_URL}/auth/google`;
   }
 
   return (

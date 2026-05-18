@@ -1,7 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import { API_URL } from "@/lib/api";
 
-const BASE_URL = "http://localhost:5000/api/auth";
+const BASE_URL = `${API_URL}/api/auth`;
 
 const initialState = {
   isAuthenticated: false,
@@ -62,7 +63,6 @@ export const checkAuth = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
-      // Si el token expiró intentamos renovarlo
       if (error.response?.status === 401) {
         try {
           await dispatch(refreshAccessToken()).unwrap();
@@ -119,7 +119,6 @@ const authSlice = createSlice({
         state.user = null;
         state.isAuthenticated = false;
       })
-
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
       })
@@ -133,13 +132,11 @@ const authSlice = createSlice({
         state.user = null;
         state.isAuthenticated = false;
       })
-
       .addCase(logoutUser.fulfilled, (state) => {
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
       })
-
       .addCase(checkAuth.pending, (state) => {
         state.isLoading = true;
       })
@@ -153,7 +150,6 @@ const authSlice = createSlice({
         state.user = null;
         state.isAuthenticated = false;
       })
-
       .addCase(refreshAccessToken.fulfilled, (state) => {
         state.isLoading = false;
       })
