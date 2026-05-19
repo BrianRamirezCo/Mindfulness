@@ -20,6 +20,25 @@ const handleImageUpload = async (req, res) => {
   }
 };
 
+// Upload de PDF via base64 (para ebooks)
+const handleEbookUpload = async (req, res) => {
+  try {
+    const { file } = req.body;
+    const result = await imageUploadUtil(file);
+
+    res.json({
+      success: true,
+      result,
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      success: false,
+      message: "Error occured",
+    });
+  }
+};
+
 const addProduct = async (req, res) => {
   try {
     const {
@@ -32,6 +51,7 @@ const addProduct = async (req, res) => {
       price,
       salePrice,
       totalStock,
+      ebookFile,
     } = req.body;
 
     const newlyCreatedProduct = new Product({
@@ -45,6 +65,7 @@ const addProduct = async (req, res) => {
       salePrice,
       totalStock,
       averageReview: 0,
+      ebookFile: type === "ebook" ? ebookFile : null,
     });
 
     await newlyCreatedProduct.save();
@@ -90,6 +111,7 @@ const editProduct = async (req, res) => {
       price,
       salePrice,
       totalStock,
+      ebookFile,
     } = req.body;
 
     let findProduct = await Product.findById(id);
@@ -109,6 +131,7 @@ const editProduct = async (req, res) => {
       salePrice === "" ? 0 : salePrice || findProduct.salePrice;
     findProduct.totalStock = totalStock || findProduct.totalStock;
     findProduct.image = image || findProduct.image;
+    if (ebookFile) findProduct.ebookFile = ebookFile;
 
     await findProduct.save();
     res.status(200).json({
@@ -150,6 +173,7 @@ const deleteProduct = async (req, res) => {
 
 module.exports = {
   handleImageUpload,
+  handleEbookUpload,
   addProduct,
   fetchAllProducts,
   editProduct,

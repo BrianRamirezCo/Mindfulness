@@ -10,6 +10,8 @@ const OrderSchema = new mongoose.Schema({
       image: String,
       price: String,
       quantity: Number,
+      type: String,
+      downloadUrl: String, // link firmado de descarga
     },
   ],
   addressInfo: {
@@ -28,6 +30,7 @@ const OrderSchema = new mongoose.Schema({
   orderUpdateDate: Date,
   paymentId: String,
   payerId: String,
+  downloadUrlExpiry: Date, // cuándo expiran los links
 });
 
 module.exports = mongoose.model("Order", OrderSchema);

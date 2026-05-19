@@ -13,7 +13,7 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: false, // no requerido para usuarios de Google
+    required: false,
   },
   googleId: {
     type: String,
@@ -22,6 +22,14 @@ const UserSchema = new mongoose.Schema({
   role: {
     type: String,
     default: "user",
+  },
+  resetToken: {
+    type: String,
+    default: null,
+  },
+  resetTokenExpiry: {
+    type: Date,
+    default: null,
   },
 });
 

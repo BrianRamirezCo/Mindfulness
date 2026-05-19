@@ -6,12 +6,13 @@ const ProductSchema = new mongoose.Schema(
     title: String,
     author: String,
     description: String,
-    category: String, // meditacion, ansiedad, habitos, espiritualidad, bienestar
-    type: String, // fisico, ebook
+    category: String,
+    type: String,
     price: Number,
     salePrice: Number,
     totalStock: Number,
     averageReview: Number,
+    ebookFile: String,
   },
   { timestamps: true },
 );

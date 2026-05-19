@@ -28,7 +28,7 @@ function AuthLogin() {
   }
 
   function handleGoogleLogin() {
-    window.location.href = `${API_URL}/auth/google`;
+    window.location.href = `${API_URL}/api/auth/google`;
   }
 
   return (
@@ -105,6 +105,12 @@ function AuthLogin() {
             Registrate
           </Link>
         </p>
+        <Link
+          to="/auth/forgot-password"
+          className="block text-xs text-foreground/40 hover:text-primary font-sans transition-colors"
+        >
+          ¿Olvidaste tu contraseña?
+        </Link>
         <p className="text-xs text-foreground/30 font-sans leading-relaxed">
           Al ingresar aceptás nuestros{" "}
           <span className="underline cursor-pointer hover:text-foreground/50">

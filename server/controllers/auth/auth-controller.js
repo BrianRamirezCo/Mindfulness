@@ -1,6 +1,8 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 const User = require("../../models/User");
+const { sendPasswordResetEmail } = require("../../helpers/email");
 
 const registerUser = async (req, res) => {
   const { userName, email, password } = req.body;
@@ -79,13 +81,13 @@ const loginUser = async (req, res) => {
         httpOnly: true,
         secure: isProd,
         sameSite: isProd ? "none" : "lax",
-        maxAge: 60 * 60 * 1000, // 1 hora
+        maxAge: 60 * 60 * 1000,
       })
       .cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: isProd,
         sameSite: isProd ? "none" : "lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       })
       .json({
         success: true,
@@ -198,10 +200,82 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.json({
+        success: false,
+        message: "No existe una cuenta con ese email",
+      });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000);
+
+    user.resetToken = resetToken;
+    user.resetTokenExpiry = resetTokenExpiry;
+    await user.save();
+
+    const resetUrl = `${process.env.CLIENT_URL}/auth/reset-password?token=${resetToken}`;
+    await sendPasswordResetEmail(email, resetUrl);
+
+    res.status(200).json({
+      success: true,
+      message: "Te enviamos un email para recuperar tu contraseña",
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "Error en el servidor",
+    });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    const user = await User.findOne({
+      resetToken: token,
+      resetTokenExpiry: { $gt: new Date() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "El link expiró o no es válido",
+      });
+    }
+
+    const hashPassword = await bcrypt.hash(password, 12);
+    user.password = hashPassword;
+    user.resetToken = null;
+    user.resetTokenExpiry = null;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Contraseña actualizada correctamente",
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "Error en el servidor",
+    });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   logoutUser,
   authMiddleware,
   refreshAccessToken,
+  forgotPassword,
+  resetPassword,
 };
