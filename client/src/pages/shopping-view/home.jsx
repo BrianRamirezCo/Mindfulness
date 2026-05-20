@@ -81,7 +81,7 @@ function ShoppingHome() {
       {/* Hero / Banner */}
       <div
         className="relative w-full overflow-hidden"
-        style={{ height: "clamp(280px, 50vw, 500px)" }}
+        style={{ height: "clamp(220px, 50vw, 500px)" }}
       >
         {featureImageList && featureImageList.length > 0 ? (
           <>
@@ -186,14 +186,15 @@ function ShoppingHome() {
           <p className="text-center text-foreground/50 text-xs tracking-widest uppercase mb-8">
             Encontrá lo que necesitás hoy
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
+          {/* flex wrap centrado para que el último quede centrado solo */}
+          <div className="flex flex-wrap justify-center gap-3 md:gap-4">
             {categoriesWithIcon.map((categoryItem) => (
               <Card
                 key={categoryItem.id}
                 onClick={() =>
                   handleNavigateToListingPage(categoryItem, "category")
                 }
-                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:border-primary/40 bg-card border-border/50"
+                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:border-primary/40 bg-card border-border/50 w-[calc(50%-6px)] sm:w-36 md:w-40"
               >
                 <CardContent className="flex flex-col items-center justify-center p-4 md:p-6 gap-2">
                   <categoryItem.icon className="w-6 h-6 md:w-8 md:h-8 text-primary/70" />
