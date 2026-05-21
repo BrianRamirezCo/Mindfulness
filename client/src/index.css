@@ -68,3 +68,9 @@
     @apply bg-background text-foreground;
   }
 }
+.card-category {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}

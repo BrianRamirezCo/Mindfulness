@@ -186,23 +186,23 @@ function ShoppingHome() {
           <p className="text-center text-foreground/50 text-xs tracking-widest uppercase mb-8">
             Encontrá lo que necesitás hoy
           </p>
-          {/* flex wrap centrado para que el último quede centrado solo */}
           <div className="flex flex-wrap justify-center gap-3 md:gap-4">
             {categoriesWithIcon.map((categoryItem) => (
-              <Card
+              <div
                 key={categoryItem.id}
                 onClick={() =>
                   handleNavigateToListingPage(categoryItem, "category")
                 }
-                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:border-primary/40 bg-card border-border/50 w-[calc(50%-6px)] sm:w-36 md:w-40"
+                className="cursor-pointer w-[calc(50%-6px)] sm:w-36 md:w-40 bg-card border border-border/50 rounded-xl hover:border-primary/40 hover:shadow-md transition-all duration-200"
+                style={{ willChange: "transform", transform: "translateZ(0)" }}
               >
-                <CardContent className="flex flex-col items-center justify-center p-4 md:p-6 gap-2">
+                <div className="flex flex-col items-center justify-center p-4 md:p-6 gap-2">
                   <categoryItem.icon className="w-6 h-6 md:w-8 md:h-8 text-primary/70" />
                   <span className="text-xs md:text-sm font-medium text-foreground/70 tracking-wide text-center">
                     {categoryItem.label}
                   </span>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
         </div>
