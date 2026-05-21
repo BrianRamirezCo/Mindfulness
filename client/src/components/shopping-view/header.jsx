@@ -1,4 +1,4 @@
-import { LogOut, Menu, ShoppingCart, UserCog } from "lucide-react";
+import { LogOut, Menu, ShoppingCart, UserCog, X } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
@@ -24,35 +24,6 @@ const mainMenuItems = [
   { id: "sobre-mi", label: "Sobre mí", path: "/shop/home#sobre-mi" },
   { id: "contacto", label: "Contacto", path: "/shop/home#contacto" },
 ];
-
-function MenuItems({ onClose }) {
-  const navigate = useNavigate();
-  const [, setSearchParams] = useSearchParams();
-
-  function handleNavigate(item) {
-    if (item.id === "products") {
-      sessionStorage.removeItem("filters");
-      navigate(item.path);
-    } else {
-      navigate(item.path);
-    }
-    onClose?.();
-  }
-
-  return (
-    <nav className="flex flex-col mb-3 lg:mb-0 lg:items-center gap-5 lg:flex-row">
-      {mainMenuItems.map((item) => (
-        <button
-          key={item.id}
-          onClick={() => handleNavigate(item)}
-          className="text-xs tracking-widest uppercase cursor-pointer text-foreground/60 hover:text-primary transition-colors duration-200 font-sans text-left"
-        >
-          {item.label}
-        </button>
-      ))}
-    </nav>
-  );
-}
 
 function HeaderRightContent() {
   const { user } = useSelector((state) => state.auth);
@@ -129,6 +100,28 @@ function HeaderRightContent() {
 }
 
 function ShoppingHeader() {
+  const [openMobileMenu, setOpenMobileMenu] = useState(false);
+  const [openCartSheet, setOpenCartSheet] = useState(false);
+  const { user } = useSelector((state) => state.auth);
+  const { cartItems } = useSelector((state) => state.shopCart);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [, setSearchParams] = useSearchParams();
+
+  function handleNavigate(item) {
+    if (item.id === "products") {
+      sessionStorage.removeItem("filters");
+    }
+    navigate(item.path);
+    setOpenMobileMenu(false);
+  }
+
+  function handleLogout() {
+    dispatch(logoutUser()).then(() => {
+      navigate("/auth/login", { replace: true });
+    });
+  }
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/50 bg-background/95 backdrop-blur-sm">
       <div className="flex h-14 items-center justify-between px-4 md:px-8 max-w-6xl mx-auto">
@@ -141,29 +134,128 @@ function ShoppingHeader() {
           />
         </Link>
 
-        {/* Mobile menu */}
-        <Sheet>
-          <SheetTrigger asChild>
+        {/* Mobile — carrito + hamburguesa */}
+        <div className="flex items-center gap-2 lg:hidden">
+          <Sheet
+            open={openCartSheet}
+            onOpenChange={() => setOpenCartSheet(false)}
+          >
             <Button
+              onClick={() => setOpenCartSheet(true)}
               variant="outline"
               size="icon"
-              className="lg:hidden border-primary/30 w-8 h-8"
+              className="relative border-primary/30 hover:bg-primary/10 w-8 h-8"
             >
-              <Menu className="h-4 w-4 text-primary" />
-              <span className="sr-only">Menú</span>
+              <ShoppingCart className="w-4 h-4 text-primary" />
+              {cartItems?.items?.length > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                  {cartItems.items.length}
+                </span>
+              )}
             </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-full max-w-xs bg-background">
-            <div className="mt-8 flex flex-col gap-6">
-              <MenuItems />
-              <HeaderRightContent />
+            <UserCartWrapper
+              setOpenCartSheet={setOpenCartSheet}
+              cartItems={
+                cartItems && cartItems.items && cartItems.items.length > 0
+                  ? cartItems.items
+                  : []
+              }
+            />
+          </Sheet>
+
+          <Button
+            variant="outline"
+            size="icon"
+            className="border-primary/30 w-8 h-8"
+            onClick={() => setOpenMobileMenu(true)}
+          >
+            <Menu className="h-4 w-4 text-primary" />
+          </Button>
+        </div>
+
+        {/* Mobile sheet — menú unificado */}
+        <Sheet open={openMobileMenu} onOpenChange={setOpenMobileMenu}>
+          <SheetContent side="left" className="w-72 bg-background p-0">
+            <div className="flex flex-col h-full">
+              {/* Header del sheet */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-border/40">
+                <img
+                  src={logo}
+                  alt="Valeria Sarmiento"
+                  className="h-8 w-auto opacity-90"
+                />
+                <button onClick={() => setOpenMobileMenu(false)}>
+                  <X className="w-5 h-5 text-foreground/50" />
+                </button>
+              </div>
+
+              {/* Info usuario */}
+              <div className="flex items-center gap-3 px-5 py-4 border-b border-border/30">
+                <Avatar className="w-9 h-9 border border-primary/30">
+                  <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-sm">
+                    {user?.userName[0].toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="text-sm font-medium text-foreground font-sans">
+                    {user?.userName}
+                  </p>
+                  <p className="text-xs text-foreground/40 font-sans">
+                    {user?.email}
+                  </p>
+                </div>
+              </div>
+
+              {/* Nav items */}
+              <nav className="flex flex-col px-5 py-4 gap-1 flex-1">
+                {mainMenuItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleNavigate(item)}
+                    className="text-left text-sm tracking-widest uppercase font-sans text-foreground/60 hover:text-primary hover:bg-primary/5 rounded-lg px-3 py-2.5 transition-colors"
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </nav>
+
+              {/* Acciones */}
+              <div className="flex flex-col px-5 py-4 gap-2 border-t border-border/30">
+                <button
+                  onClick={() => {
+                    navigate("/shop/account");
+                    setOpenMobileMenu(false);
+                  }}
+                  className="flex items-center gap-3 text-sm font-sans text-foreground/60 hover:text-primary hover:bg-primary/5 rounded-lg px-3 py-2.5 transition-colors"
+                >
+                  <UserCog className="w-4 h-4" />
+                  Mi cuenta
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 text-sm font-sans text-destructive/70 hover:text-destructive hover:bg-destructive/5 rounded-lg px-3 py-2.5 transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Cerrar sesión
+                </button>
+              </div>
             </div>
           </SheetContent>
         </Sheet>
 
         {/* Desktop nav */}
         <div className="hidden lg:block">
-          <MenuItems />
+          <nav className="flex items-center gap-5">
+            {mainMenuItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => handleNavigate(item)}
+                className="text-xs tracking-widest uppercase cursor-pointer text-foreground/60 hover:text-primary transition-colors duration-200 font-sans"
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
         </div>
 
         <div className="hidden lg:block">
