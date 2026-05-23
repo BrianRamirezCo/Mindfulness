@@ -28,7 +28,7 @@ const addToCart = async (req, res) => {
     }
 
     const findCurrentProductIndex = cart.items.findIndex(
-      (item) => item.productId.toString() === productId
+      (item) => item.productId.toString() === productId,
     );
 
     if (findCurrentProductIndex === -1) {
@@ -58,13 +58,13 @@ const fetchCartItems = async (req, res) => {
     if (!userId) {
       return res.status(400).json({
         success: false,
-        message: "User id is manadatory!",
+        message: "User id is mandatory!",
       });
     }
 
     const cart = await Cart.findOne({ userId }).populate({
       path: "items.productId",
-      select: "image title price salePrice",
+      select: "image title price salePrice type",
     });
 
     if (!cart) {
@@ -75,7 +75,7 @@ const fetchCartItems = async (req, res) => {
     }
 
     const validItems = cart.items.filter(
-      (productItem) => productItem.productId
+      (productItem) => productItem.productId,
     );
 
     if (validItems.length < cart.items.length) {
@@ -89,6 +89,7 @@ const fetchCartItems = async (req, res) => {
       title: item.productId.title,
       price: item.productId.price,
       salePrice: item.productId.salePrice,
+      type: item.productId.type,
       quantity: item.quantity,
     }));
 
@@ -128,13 +129,13 @@ const updateCartItemQty = async (req, res) => {
     }
 
     const findCurrentProductIndex = cart.items.findIndex(
-      (item) => item.productId.toString() === productId
+      (item) => item.productId.toString() === productId,
     );
 
     if (findCurrentProductIndex === -1) {
       return res.status(404).json({
         success: false,
-        message: "Cart item not present !",
+        message: "Cart item not present!",
       });
     }
 
@@ -143,7 +144,7 @@ const updateCartItemQty = async (req, res) => {
 
     await cart.populate({
       path: "items.productId",
-      select: "image title price salePrice",
+      select: "image title price salePrice type",
     });
 
     const populateCartItems = cart.items.map((item) => ({
@@ -152,6 +153,7 @@ const updateCartItemQty = async (req, res) => {
       title: item.productId ? item.productId.title : "Product not found",
       price: item.productId ? item.productId.price : null,
       salePrice: item.productId ? item.productId.salePrice : null,
+      type: item.productId ? item.productId.type : null,
       quantity: item.quantity,
     }));
 
@@ -183,7 +185,7 @@ const deleteCartItem = async (req, res) => {
 
     const cart = await Cart.findOne({ userId }).populate({
       path: "items.productId",
-      select: "image title price salePrice",
+      select: "image title price salePrice type",
     });
 
     if (!cart) {
@@ -194,14 +196,14 @@ const deleteCartItem = async (req, res) => {
     }
 
     cart.items = cart.items.filter(
-      (item) => item.productId._id.toString() !== productId
+      (item) => item.productId._id.toString() !== productId,
     );
 
     await cart.save();
 
     await cart.populate({
       path: "items.productId",
-      select: "image title price salePrice",
+      select: "image title price salePrice type",
     });
 
     const populateCartItems = cart.items.map((item) => ({
@@ -210,6 +212,7 @@ const deleteCartItem = async (req, res) => {
       title: item.productId ? item.productId.title : "Product not found",
       price: item.productId ? item.productId.price : null,
       salePrice: item.productId ? item.productId.salePrice : null,
+      type: item.productId ? item.productId.type : null,
       quantity: item.quantity,
     }));
 
