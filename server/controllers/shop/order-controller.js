@@ -9,6 +9,10 @@ const client = new MercadoPagoConfig({
 });
 
 const createOrder = async (req, res) => {
+  console.log("=== CREATE ORDER ===");
+  console.log("body:", JSON.stringify(req.body, null, 2));
+  console.log("cartItems type:", typeof req.body.cartItems);
+  console.log("cartItems value:", req.body.cartItems);
   try {
     const {
       userId,
