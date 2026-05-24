@@ -77,7 +77,9 @@ function ShoppingHome() {
   }, [dispatch]);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen overflow-x-hidden">
+      {" "}
+      {/* ← CAMBIO 1 */}
       {/* Hero / Banner */}
       <div
         className="relative w-full overflow-hidden"
@@ -91,7 +93,7 @@ function ShoppingHome() {
                 key={index}
                 className={`${
                   index === currentSlide ? "opacity-100" : "opacity-0"
-                } absolute top-0 left-0 w-full h-full object-cover object-center transition-opacity duration-1000`}
+                } absolute top-0 left-0 w-full max-w-full h-full object-cover object-center transition-opacity duration-1000`} // ← CAMBIO 2
               />
             ))}
             {featureImageList.length > 1 && (
@@ -160,7 +162,6 @@ function ShoppingHome() {
           </div>
         )}
       </div>
-
       {/* Sobre Valeria */}
       <section className="py-12 bg-primary/5 border-y border-border/40">
         <div className="container mx-auto px-4 max-w-3xl text-center">
@@ -176,7 +177,6 @@ function ShoppingHome() {
           </p>
         </div>
       </section>
-
       {/* Categorías */}
       <section className="py-10 md:py-14">
         <div className="container mx-auto px-4">
@@ -207,7 +207,6 @@ function ShoppingHome() {
           </div>
         </div>
       </section>
-
       {/* Libros destacados */}
       <section className="py-10 md:py-14 bg-primary/5 border-t border-border/40">
         <div className="container mx-auto px-4">
@@ -231,7 +230,6 @@ function ShoppingHome() {
           </div>
         </div>
       </section>
-
       {/* CTA final */}
       <section className="py-12 md:py-16 text-center">
         <div className="container mx-auto px-4 max-w-xl">
