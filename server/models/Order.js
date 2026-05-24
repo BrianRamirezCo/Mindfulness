@@ -1,20 +1,40 @@
 const mongoose = require("mongoose");
 
-const OrderSchema = new mongoose.Schema({
-  userId: String,
-  cartId: String,
-  cartItems: [
-    {
-      productId: String,
-      title: String,
-      image: String,
-      price: String,
-      quantity: Number,
+const CartItemSchema = new mongoose.Schema(
+  {
+    productId: {
       type: String,
-      downloadUrl: String, // link firmado de descarga
     },
-  ],
-  addressInfo: {
+
+    title: {
+      type: String,
+    },
+
+    image: {
+      type: String,
+    },
+
+    price: {
+      type: Number,
+    },
+
+    quantity: {
+      type: Number,
+    },
+
+    productType: {
+      type: String,
+    },
+
+    downloadUrl: {
+      type: String,
+    },
+  },
+  { _id: false },
+);
+
+const AddressInfoSchema = new mongoose.Schema(
+  {
     addressId: String,
     address: String,
     city: String,
@@ -22,15 +42,60 @@ const OrderSchema = new mongoose.Schema({
     phone: String,
     notes: String,
   },
-  orderStatus: String,
-  paymentMethod: String,
-  paymentStatus: String,
-  totalAmount: Number,
-  orderDate: Date,
-  orderUpdateDate: Date,
-  paymentId: String,
-  payerId: String,
-  downloadUrlExpiry: Date, // cuándo expiran los links
+  { _id: false },
+);
+
+const OrderSchema = new mongoose.Schema({
+  userId: {
+    type: String,
+  },
+
+  cartId: {
+    type: String,
+  },
+
+  cartItems: [CartItemSchema],
+
+  addressInfo: {
+    type: AddressInfoSchema,
+    default: null,
+  },
+
+  orderStatus: {
+    type: String,
+  },
+
+  paymentMethod: {
+    type: String,
+  },
+
+  paymentStatus: {
+    type: String,
+  },
+
+  totalAmount: {
+    type: Number,
+  },
+
+  orderDate: {
+    type: Date,
+  },
+
+  orderUpdateDate: {
+    type: Date,
+  },
+
+  paymentId: {
+    type: String,
+  },
+
+  payerId: {
+    type: String,
+  },
+
+  downloadUrlExpiry: {
+    type: Date,
+  },
 });
 
-module.exports = mongoose.model("Order", OrderSchema);
+module.exports = mongoose.models.Order || mongoose.model("Order", OrderSchema);

@@ -13,6 +13,8 @@ const createOrder = async (req, res) => {
   console.log("body:", JSON.stringify(req.body, null, 2));
   console.log("cartItems type:", typeof req.body.cartItems);
   console.log("cartItems value:", req.body.cartItems);
+  console.log(Order.schema.path("cartItems"));
+  console.log(Order.schema.obj.cartItems);
   try {
     const {
       userId,

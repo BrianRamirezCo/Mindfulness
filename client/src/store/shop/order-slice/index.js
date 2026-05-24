@@ -14,7 +14,7 @@ export const createNewOrder = createAsyncThunk(
   async (orderData) => {
     const response = await axios.post(
       `${API_URL}/api/shop/order/create`,
-      JSON.parse(JSON.stringify(orderData)),
+      orderData,
       {
         withCredentials: true,
         headers: {

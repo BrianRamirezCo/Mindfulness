@@ -22,14 +22,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      const allowed = ["http://localhost:5173", process.env.CLIENT_URL];
-      if (!origin || allowed.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: ["http://localhost:5173", process.env.CLIENT_URL].filter(Boolean),
     methods: ["GET", "POST", "DELETE", "PUT"],
     allowedHeaders: [
       "Content-Type",
@@ -61,5 +54,4 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ success: false, message: "Something went wrong" });
 });
-
 app.listen(PORT, () => console.log(`Server is now running on port ${PORT}`));
