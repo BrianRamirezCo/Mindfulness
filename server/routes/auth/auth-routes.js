@@ -10,6 +10,7 @@ const {
 } = require("../../controllers/auth/auth-controller");
 const passport = require("../../config/passport");
 const jwt = require("jsonwebtoken");
+const User = require("../../models/User");
 
 const router = express.Router();
 
@@ -42,7 +43,21 @@ router.get(
   }),
   (req, res) => {
     const user = req.user;
-    const isProd = process.env.NODE_ENV === "production";
+
+    const tempToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "5m",
+    });
+
+    res.redirect(
+      `${process.env.CLIENT_URL}/auth/google/success?tempToken=${tempToken}`,
+    );
+  },
+);
+
+// Endpoint que setea las cookies correctamente via proxy de Vercel
+router.get("/google/session", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
 
     const token = jwt.sign(
       {
@@ -61,6 +76,8 @@ router.get(
       { expiresIn: "7d" },
     );
 
+    const isProd = process.env.NODE_ENV === "production";
+
     res
       .cookie("token", token, {
         httpOnly: true,
@@ -74,8 +91,18 @@ router.get(
         sameSite: isProd ? "none" : "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
-      .redirect(`${process.env.CLIENT_URL}/shop/home`);
-  },
-);
+      .json({
+        success: true,
+        user: {
+          id: user._id,
+          email: user.email,
+          role: user.role,
+          userName: user.userName,
+        },
+      });
+  } catch (e) {
+    res.status(500).json({ success: false, message: "Error en el servidor" });
+  }
+});
 
 module.exports = router;

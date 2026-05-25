@@ -17,12 +17,12 @@ import ProductDetailPage from "./pages/shopping-view/product-detail";
 import CheckAuth from "./components/common/check-auth";
 import ForgotPassword from "./pages/auth/forgot-password";
 import ResetPassword from "./pages/auth/reset-password";
+import GoogleSuccess from "./pages/auth/google-success";
 import UnauthPage from "./pages/unauth-page";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { checkAuth } from "./store/auth-slice";
 import { Skeleton } from "@/components/ui/skeleton";
-
 import PaymentSuccessPage from "./pages/shopping-view/payment-success";
 import PaymentFailurePage from "./pages/shopping-view/payment-failure";
 import PaymentPendingPage from "./pages/shopping-view/payment-pending";
@@ -40,20 +40,14 @@ function App() {
 
   if (isLoading) return <Skeleton className="w-[800] bg-black h-[600px]" />;
 
-  console.log(isLoading, user);
-
   return (
     <div className="flex flex-col overflow-hidden bg-white">
       <Routes>
         <Route
           path="/"
-          element={
-            <CheckAuth
-              isAuthenticated={isAuthenticated}
-              user={user}
-            ></CheckAuth>
-          }
+          element={<CheckAuth isAuthenticated={isAuthenticated} user={user} />}
         />
+        <Route path="/auth/google/success" element={<GoogleSuccess />} />
         <Route
           path="/auth"
           element={
