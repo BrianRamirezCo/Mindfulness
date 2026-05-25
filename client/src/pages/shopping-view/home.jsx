@@ -82,15 +82,8 @@ function ShoppingHome() {
       {/* ← CAMBIO 1 */}
       {/* Hero / Banner */}
       <div
-        className="relative overflow-hidden"
-        style={{
-          height: "clamp(220px, 50vw, 500px)",
-          width: "100vw",
-          maxWidth: "100vw",
-          left: "50%",
-          transform: "translateX(-50%)",
-          position: "relative",
-        }}
+        className="relative w-full overflow-hidden"
+        style={{ height: "clamp(220px, 50vw, 500px)" }}
       >
         {featureImageList && featureImageList.length > 0 ? (
           <>
