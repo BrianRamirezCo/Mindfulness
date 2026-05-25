@@ -39,8 +39,28 @@ function HeaderRightContent() {
   }
 
   useEffect(() => {
-    dispatch(fetchCartItems(user?.id));
-  }, [dispatch]);
+    if (user?.id) dispatch(fetchCartItems(user?.id));
+  }, [dispatch, user]);
+
+  if (!user) {
+    return (
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/auth/login")}
+          className="text-xs tracking-widest uppercase text-foreground/60 hover:text-primary font-sans"
+        >
+          Iniciá sesión
+        </Button>
+        <Button
+          onClick={() => navigate("/auth/register")}
+          className="text-xs tracking-widest uppercase bg-primary hover:bg-primary/90 text-primary-foreground px-4 font-sans"
+        >
+          Creá tu cuenta
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex lg:items-center lg:flex-row flex-col gap-3">
@@ -136,32 +156,34 @@ function ShoppingHeader() {
 
         {/* Mobile — carrito + hamburguesa */}
         <div className="flex items-center gap-2 lg:hidden">
-          <Sheet
-            open={openCartSheet}
-            onOpenChange={() => setOpenCartSheet(false)}
-          >
-            <Button
-              onClick={() => setOpenCartSheet(true)}
-              variant="outline"
-              size="icon"
-              className="relative border-primary/30 hover:bg-primary/10 w-8 h-8"
+          {user ? (
+            <Sheet
+              open={openCartSheet}
+              onOpenChange={() => setOpenCartSheet(false)}
             >
-              <ShoppingCart className="w-4 h-4 text-primary" />
-              {cartItems?.items?.length > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                  {cartItems.items.length}
-                </span>
-              )}
-            </Button>
-            <UserCartWrapper
-              setOpenCartSheet={setOpenCartSheet}
-              cartItems={
-                cartItems && cartItems.items && cartItems.items.length > 0
-                  ? cartItems.items
-                  : []
-              }
-            />
-          </Sheet>
+              <Button
+                onClick={() => setOpenCartSheet(true)}
+                variant="outline"
+                size="icon"
+                className="relative border-primary/30 hover:bg-primary/10 w-8 h-8"
+              >
+                <ShoppingCart className="w-4 h-4 text-primary" />
+                {cartItems?.items?.length > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                    {cartItems.items.length}
+                  </span>
+                )}
+              </Button>
+              <UserCartWrapper
+                setOpenCartSheet={setOpenCartSheet}
+                cartItems={
+                  cartItems && cartItems.items && cartItems.items.length > 0
+                    ? cartItems.items
+                    : []
+                }
+              />
+            </Sheet>
+          ) : null}
 
           <Button
             variant="outline"
@@ -189,22 +211,46 @@ function ShoppingHeader() {
                 </button>
               </div>
 
-              {/* Info usuario */}
-              <div className="flex items-center gap-3 px-5 py-4 border-b border-border/30">
-                <Avatar className="w-9 h-9 border border-primary/30">
-                  <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-sm">
-                    {user?.userName[0].toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-sm font-medium text-foreground font-sans">
-                    {user?.userName}
-                  </p>
-                  <p className="text-xs text-foreground/40 font-sans">
-                    {user?.email}
-                  </p>
+              {/* Info usuario o botones de auth */}
+              {user ? (
+                <div className="flex items-center gap-3 px-5 py-4 border-b border-border/30">
+                  <Avatar className="w-9 h-9 border border-primary/30">
+                    <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-sm">
+                      {user?.userName[0].toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm font-medium text-foreground font-sans">
+                      {user?.userName}
+                    </p>
+                    <p className="text-xs text-foreground/40 font-sans">
+                      {user?.email}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="flex flex-col gap-2 px-5 py-4 border-b border-border/30">
+                  <Button
+                    onClick={() => {
+                      navigate("/auth/login");
+                      setOpenMobileMenu(false);
+                    }}
+                    variant="outline"
+                    className="w-full text-xs tracking-widest uppercase border-primary/30 text-foreground/60"
+                  >
+                    Iniciá sesión
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      navigate("/auth/register");
+                      setOpenMobileMenu(false);
+                    }}
+                    className="w-full text-xs tracking-widest uppercase bg-primary hover:bg-primary/90 text-primary-foreground"
+                  >
+                    Creá tu cuenta
+                  </Button>
+                </div>
+              )}
 
               {/* Nav items */}
               <nav className="flex flex-col px-5 py-4 gap-1 flex-1">
@@ -219,26 +265,28 @@ function ShoppingHeader() {
                 ))}
               </nav>
 
-              {/* Acciones */}
-              <div className="flex flex-col px-5 py-4 gap-2 border-t border-border/30">
-                <button
-                  onClick={() => {
-                    navigate("/shop/account");
-                    setOpenMobileMenu(false);
-                  }}
-                  className="flex items-center gap-3 text-sm font-sans text-foreground/60 hover:text-primary hover:bg-primary/5 rounded-lg px-3 py-2.5 transition-colors"
-                >
-                  <UserCog className="w-4 h-4" />
-                  Mi cuenta
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-3 text-sm font-sans text-destructive/70 hover:text-destructive hover:bg-destructive/5 rounded-lg px-3 py-2.5 transition-colors"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Cerrar sesión
-                </button>
-              </div>
+              {/* Acciones — solo si está logueado */}
+              {user && (
+                <div className="flex flex-col px-5 py-4 gap-2 border-t border-border/30">
+                  <button
+                    onClick={() => {
+                      navigate("/shop/account");
+                      setOpenMobileMenu(false);
+                    }}
+                    className="flex items-center gap-3 text-sm font-sans text-foreground/60 hover:text-primary hover:bg-primary/5 rounded-lg px-3 py-2.5 transition-colors"
+                  >
+                    <UserCog className="w-4 h-4" />
+                    Mi cuenta
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 text-sm font-sans text-destructive/70 hover:text-destructive hover:bg-destructive/5 rounded-lg px-3 py-2.5 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Cerrar sesión
+                  </button>
+                </div>
+              )}
             </div>
           </SheetContent>
         </Sheet>

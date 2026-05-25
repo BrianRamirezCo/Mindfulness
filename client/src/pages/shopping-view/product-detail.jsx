@@ -36,6 +36,10 @@ function ProductDetailPage() {
   }, [productDetails]);
 
   function handleAddToCart() {
+    if (!user) {
+      navigate("/auth/login");
+      return;
+    }
     let getCartItems = cartItems.items || [];
 
     if (getCartItems.length) {

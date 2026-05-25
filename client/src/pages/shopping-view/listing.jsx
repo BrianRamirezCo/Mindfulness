@@ -14,7 +14,7 @@ import { fetchAllFilteredProducts } from "@/store/shop/products-slice";
 import { ArrowUpDownIcon, BookOpen } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 
 function createSearchParamsHelper(filterParams) {
   const queryParams = [];
@@ -35,6 +35,7 @@ function ShoppingListing() {
   const [filters, setFilters] = useState({});
   const [sort, setSort] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const categorySearchParam = searchParams.get("category");
 
@@ -61,6 +62,10 @@ function ShoppingListing() {
   }
 
   function handleAddtoCart(getCurrentProductId, getTotalStock) {
+    if (!user) {
+      navigate("/auth/login");
+      return;
+    }
     let getCartItems = cartItems.items || [];
 
     if (getCartItems.length) {

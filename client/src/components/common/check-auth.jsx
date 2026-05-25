@@ -10,13 +10,24 @@ function CheckAuth({ isAuthenticated, user, children }) {
     "/auth/reset-password",
   ];
 
+  const publicShopRoutes = [
+    "/shop/home",
+    "/shop/listing",
+    "/shop/product/",
+    "/shop/search",
+  ];
+
   const isPublicAuthRoute = publicAuthRoutes.some((route) =>
     location.pathname.includes(route),
   );
 
+  const isPublicShopRoute = publicShopRoutes.some((route) =>
+    location.pathname.startsWith(route),
+  );
+
   if (location.pathname === "/") {
     if (!isAuthenticated) {
-      return <Navigate to="/auth/login" />;
+      return <Navigate to="/shop/home" />; // ← antes iba a /auth/login
     } else {
       if (user?.role === "admin") {
         return <Navigate to="/admin/dashboard" />;
@@ -24,6 +35,11 @@ function CheckAuth({ isAuthenticated, user, children }) {
         return <Navigate to="/shop/home" />;
       }
     }
+  }
+
+  // Rutas públicas de la tienda — permitir sin login
+  if (!isAuthenticated && isPublicShopRoute) {
+    return <>{children}</>;
   }
 
   if (!isAuthenticated && !isPublicAuthRoute) {

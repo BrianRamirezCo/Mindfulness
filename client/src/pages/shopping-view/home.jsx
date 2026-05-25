@@ -42,6 +42,10 @@ function ShoppingHome() {
   }
 
   function handleAddtoCart(getCurrentProductId) {
+    if (!user) {
+      navigate("/auth/login");
+      return;
+    }
     dispatch(
       addToCart({
         userId: user?.id,
