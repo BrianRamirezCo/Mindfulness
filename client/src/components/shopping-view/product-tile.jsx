@@ -15,13 +15,14 @@ function ShoppingProductTile({ product, handleAddtoCart }) {
   return (
     <Card className="w-full max-w-sm mx-auto border-border/50 hover:border-primary/30 hover:shadow-md transition-all duration-200 cursor-pointer group">
       <div onClick={() => navigate(`/shop/product/${product?._id}`)}>
-        <div className="relative overflow-hidden rounded-t-lg">
+        <div className="relative overflow-hidden rounded-t-lg bg-primary/5">
+          {" "}
+          {/* ← fondo neutro */}
           <img
             src={product?.image}
             alt={product?.title}
-            className="w-full h-[280px] object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-[320px] object-contain group-hover:scale-105 transition-transform duration-300" // ← object-contain + altura
           />
-
           {/* Badges */}
           {isOutOfStock ? (
             <Badge className="absolute top-2 left-2 bg-foreground/70 hover:bg-foreground/80 text-background text-xs">
@@ -36,7 +37,6 @@ function ShoppingProductTile({ product, handleAddtoCart }) {
               Oferta
             </Badge>
           ) : null}
-
           {/* Tipo de libro */}
           <div className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1">
             {isEbook ? (
