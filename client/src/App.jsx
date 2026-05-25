@@ -38,7 +38,21 @@ function App() {
     dispatch(checkAuth());
   }, [dispatch]);
 
-  if (isLoading) return <Skeleton className="w-[800] bg-black h-[600px]" />;
+  if (isLoading)
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <img
+            src="/favicon.png"
+            alt="Cargando..."
+            className="w-16 h-16 opacity-80 animate-pulse"
+          />
+          <p className="text-xs text-foreground/40 font-sans tracking-widest uppercase">
+            Cargando...
+          </p>
+        </div>
+      </div>
+    );
 
   return (
     <div className="flex flex-col overflow-hidden bg-white">
