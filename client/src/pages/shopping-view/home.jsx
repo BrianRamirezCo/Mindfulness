@@ -9,7 +9,6 @@ import {
   Leaf,
   Sparkles,
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllFilteredProducts } from "@/store/shop/products-slice";
@@ -17,6 +16,70 @@ import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { useNavigate } from "react-router-dom";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { getFeatureImages } from "@/store/common-slice";
+import { subscribeNewsletter } from "@/store/reflection-slice";
+
+function NewsletterSection() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState(null);
+  const dispatch = useDispatch();
+
+  async function handleSubscribe(e) {
+    e.preventDefault();
+    if (!email) return;
+    const data = await dispatch(subscribeNewsletter(email));
+    if (data?.payload?.success) {
+      setStatus("success");
+      setEmail("");
+    } else {
+      setStatus("error");
+    }
+  }
+
+  return (
+    <section className="py-12 md:py-16 bg-primary/5 border-t border-border/40">
+      <div className="container mx-auto px-4 max-w-xl text-center">
+        <Leaf className="w-7 h-7 text-primary mx-auto mb-4 opacity-70" />
+        <h2 className="font-serif text-2xl md:text-3xl text-foreground mb-2 tracking-wide">
+          Reflexiones semanales
+        </h2>
+        <p className="text-foreground/55 text-sm md:text-base mb-8 leading-relaxed">
+          Suscribite y recibí cada semana una reflexión de Valeria directamente
+          en tu email.
+        </p>
+        {status === "success" ? (
+          <p className="text-sm font-sans text-primary bg-primary/10 border border-primary/20 rounded-lg py-3 px-4">
+            ¡Te suscribiste correctamente!
+          </p>
+        ) : (
+          <form
+            onSubmit={handleSubscribe}
+            className="flex gap-2 max-w-sm mx-auto"
+          >
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Tu email"
+              required
+              className="flex-1 border border-border/50 rounded-lg px-4 py-2.5 text-sm font-sans bg-background focus:outline-none focus:border-primary/50"
+            />
+            <Button
+              type="submit"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-sans text-sm tracking-wide px-5"
+            >
+              Suscribirme
+            </Button>
+          </form>
+        )}
+        {status === "error" && (
+          <p className="text-sm text-destructive font-sans mt-2">
+            Ya estás suscripto con ese email.
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}
 
 const categoriesWithIcon = [
   { id: "meditacion", label: "Meditación", icon: Brain },
@@ -234,6 +297,8 @@ function ShoppingHome() {
           </div>
         </div>
       </section>
+      {/* Newsletter */}
+      <NewsletterSection />
       {/* CTA final */}
       <section className="py-12 md:py-16 text-center">
         <div className="container mx-auto px-4 max-w-xl">

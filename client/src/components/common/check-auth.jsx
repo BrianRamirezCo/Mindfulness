@@ -15,6 +15,8 @@ function CheckAuth({ isAuthenticated, user, children }) {
     "/shop/listing",
     "/shop/product/",
     "/shop/search",
+    "/shop/search",
+    "/shop/reflections",
   ];
 
   const isPublicAuthRoute = publicAuthRoutes.some((route) =>

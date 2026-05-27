@@ -1,5 +1,4 @@
-// sidebar.jsx
-import { BookOpen, LayoutDashboard, PackageCheck } from "lucide-react";
+import { BookOpen, LayoutDashboard, PackageCheck, Feather } from "lucide-react";
 import { Fragment } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
@@ -22,6 +21,12 @@ const adminSidebarMenuItems = [
     label: "Pedidos",
     path: "/admin/orders",
     icon: <PackageCheck size={18} />,
+  },
+  {
+    id: "reflections",
+    label: "Reflexiones",
+    path: "/admin/reflections",
+    icon: <Feather size={18} />,
   },
 ];
 
@@ -84,7 +89,6 @@ function AdminSideBar({ open, setOpen }) {
 
   return (
     <Fragment>
-      {/* Mobile */}
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="left" className="w-64 bg-background">
           <div className="flex flex-col h-full">
@@ -97,8 +101,6 @@ function AdminSideBar({ open, setOpen }) {
           </div>
         </SheetContent>
       </Sheet>
-
-      {/* Desktop */}
       <aside className="hidden w-64 flex-col border-r border-border/40 bg-background p-5 lg:flex">
         <Logo />
         <MenuItems />

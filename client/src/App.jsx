@@ -7,6 +7,7 @@ import AdminDashboard from "./pages/admin-view/dashboard";
 import AdminProducts from "./pages/admin-view/products";
 import AdminOrders from "./pages/admin-view/orders";
 import AdminFeatures from "./pages/admin-view/features";
+import AdminReflections from "./pages/admin-view/reflections";
 import ShoppingLayout from "./components/shopping-view/layout";
 import NotFound from "./pages/not-found";
 import ShoppingHome from "./pages/shopping-view/home";
@@ -27,6 +28,8 @@ import PaymentSuccessPage from "./pages/shopping-view/payment-success";
 import PaymentFailurePage from "./pages/shopping-view/payment-failure";
 import PaymentPendingPage from "./pages/shopping-view/payment-pending";
 import SearchProducts from "./pages/shopping-view/search";
+import ReflectionsPage from "./pages/shopping-view/reflections";
+import ReflectionDetailPage from "./pages/shopping-view/reflection-detail";
 
 function App() {
   const { user, isAuthenticated, isLoading } = useSelector(
@@ -87,6 +90,7 @@ function App() {
           <Route path="products" element={<AdminProducts />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="features" element={<AdminFeatures />} />
+          <Route path="reflections" element={<AdminReflections />} />
         </Route>
         <Route
           path="/shop"
@@ -105,6 +109,8 @@ function App() {
           <Route path="payment-failure" element={<PaymentFailurePage />} />
           <Route path="payment-pending" element={<PaymentPendingPage />} />
           <Route path="search" element={<SearchProducts />} />
+          <Route path="reflections" element={<ReflectionsPage />} />
+          <Route path="reflections/:id" element={<ReflectionDetailPage />} />
         </Route>
         <Route path="/unauth-page" element={<UnauthPage />} />
         <Route path="*" element={<NotFound />} />
