@@ -3,6 +3,7 @@ import ShoppingHeader from "./header";
 import logo from "../../assets/logo.png";
 import { FaInstagram, FaFacebook } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
+import CookieBanner from "@/components/common/cookie-banner";
 
 function ShoppingFooter() {
   return (
@@ -62,16 +63,22 @@ function ShoppingFooter() {
               Todos los libros
             </Link>
             <Link
-              to="/shop/home#sobre-mi"
+              to="/shop/sobre-mi"
               className="text-sm text-foreground/55 hover:text-primary font-sans transition-colors"
             >
               Sobre mí
             </Link>
             <Link
-              to="/shop/home#contacto"
+              to="/shop/contacto"
               className="text-sm text-foreground/55 hover:text-primary font-sans transition-colors"
             >
               Contacto
+            </Link>
+            <Link
+              to="/shop/reflections"
+              className="text-sm text-foreground/55 hover:text-primary font-sans transition-colors"
+            >
+              Reflexiones
             </Link>
           </div>
 
@@ -80,25 +87,25 @@ function ShoppingFooter() {
               Legal
             </p>
             <Link
-              to="#"
+              to="/shop/terminos"
               className="text-sm text-foreground/55 hover:text-primary font-sans transition-colors"
             >
               Términos y condiciones
             </Link>
             <Link
-              to="#"
+              to="/shop/privacidad"
               className="text-sm text-foreground/55 hover:text-primary font-sans transition-colors"
             >
               Política de privacidad
             </Link>
             <Link
-              to="#"
+              to="/shop/devoluciones"
               className="text-sm text-foreground/55 hover:text-primary font-sans transition-colors"
             >
               Política de devoluciones
             </Link>
             <Link
-              to="#"
+              to="/shop/faq"
               className="text-sm text-foreground/55 hover:text-primary font-sans transition-colors"
             >
               Preguntas frecuentes
@@ -136,6 +143,7 @@ function ShoppingLayout() {
         <Outlet />
       </main>
       <ShoppingFooter />
+      <CookieBanner />
     </div>
   );
 }

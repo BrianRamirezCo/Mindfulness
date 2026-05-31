@@ -1,6 +1,10 @@
 import { useState } from "react";
 import CommonForm from "@/components/common/form";
-import { DialogContent } from "@/components/ui/dialog";
+import {
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useDispatch, useSelector } from "react-redux";
@@ -85,6 +89,12 @@ function AdminOrderDetailsView({ orderDetails }) {
 
   return (
     <DialogContent className="sm:max-w-[600px] overflow-auto max-h-[90vh]">
+      <DialogTitle className="font-serif text-xl text-foreground tracking-wide sr-only">
+        Detalle del pedido
+      </DialogTitle>
+      <DialogDescription className="sr-only">
+        Información detallada del pedido seleccionado
+      </DialogDescription>
       <div className="grid gap-5 mt-2">
         {/* Header */}
         <div>

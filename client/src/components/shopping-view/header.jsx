@@ -1,6 +1,6 @@
-import { LogOut, Menu, ShoppingCart, UserCog, X } from "lucide-react";
+import { LogOut, Menu, ShoppingCart, UserCog, Search, X } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
+import { Sheet, SheetContent } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -21,8 +21,10 @@ import logo from "../../assets/logo.png";
 const mainMenuItems = [
   { id: "home", label: "Inicio", path: "/shop/home" },
   { id: "products", label: "Libros", path: "/shop/listing" },
-  { id: "sobre-mi", label: "Sobre mí", path: "/shop/home#sobre-mi" },
-  { id: "contacto", label: "Contacto", path: "/shop/home#contacto" },
+  { id: "reflections", label: "Reflexiones", path: "/shop/reflections" },
+  { id: "sobre-mi", label: "Sobre mí", path: "/shop/sobre-mi" },
+  { id: "contacto", label: "Contacto", path: "/shop/contacto" },
+  { id: "cursos", label: "Cursos", path: "/shop/cursos" },
 ];
 
 function HeaderRightContent() {
@@ -63,7 +65,7 @@ function HeaderRightContent() {
   }
 
   return (
-    <div className="flex lg:items-center lg:flex-row flex-col gap-3">
+    <div className="flex items-center gap-3">
       <Sheet open={openCartSheet} onOpenChange={() => setOpenCartSheet(false)}>
         <Button
           onClick={() => setOpenCartSheet(true)}
@@ -122,6 +124,8 @@ function HeaderRightContent() {
 function ShoppingHeader() {
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
   const [openCartSheet, setOpenCartSheet] = useState(false);
+  const [openSearch, setOpenSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { user } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.shopCart);
   const navigate = useNavigate();
@@ -129,9 +133,7 @@ function ShoppingHeader() {
   const [, setSearchParams] = useSearchParams();
 
   function handleNavigate(item) {
-    if (item.id === "products") {
-      sessionStorage.removeItem("filters");
-    }
+    if (item.id === "products") sessionStorage.removeItem("filters");
     navigate(item.path);
     setOpenMobileMenu(false);
   }
@@ -142,8 +144,46 @@ function ShoppingHeader() {
     });
   }
 
+  function handleSearch(e) {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    navigate(`/shop/search?keyword=${encodeURIComponent(searchQuery)}`);
+    setSearchQuery("");
+    setOpenSearch(false);
+    setOpenMobileMenu(false);
+  }
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/50 bg-background/95 backdrop-blur-sm">
+      {/* Barra de búsqueda expandida */}
+      {openSearch && (
+        <div className="fixed inset-x-0 top-0 z-50 h-14 bg-background border-b border-border/50 flex items-center px-4 md:px-8">
+          <form
+            onSubmit={handleSearch}
+            className="flex items-center gap-3 w-full max-w-2xl mx-auto"
+          >
+            <Search className="w-4 h-4 text-primary/60 flex-shrink-0" />
+            <input
+              autoFocus
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Buscar libros, temas..."
+              className="flex-1 bg-transparent border-none outline-none text-sm font-sans text-foreground placeholder:text-foreground/40"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setOpenSearch(false);
+                setSearchQuery("");
+              }}
+            >
+              <X className="w-4 h-4 text-foreground/40 hover:text-foreground" />
+            </button>
+          </form>
+        </div>
+      )}
+
       <div className="flex h-14 items-center justify-between px-4 md:px-8 max-w-6xl mx-auto">
         {/* Logo */}
         <Link to="/shop/home" className="flex items-center group flex-shrink-0">
@@ -154,9 +194,16 @@ function ShoppingHeader() {
           />
         </Link>
 
-        {/* Mobile — carrito + hamburguesa */}
+        {/* Mobile — búsqueda + carrito + hamburguesa */}
         <div className="flex items-center gap-2 lg:hidden">
-          {user ? (
+          <button
+            onClick={() => setOpenSearch(true)}
+            className="w-8 h-8 flex items-center justify-center border border-border/50 rounded-lg hover:bg-primary/5 transition-colors"
+          >
+            <Search className="w-4 h-4 text-foreground/50" />
+          </button>
+
+          {user && (
             <Sheet
               open={openCartSheet}
               onOpenChange={() => setOpenCartSheet(false)}
@@ -183,7 +230,7 @@ function ShoppingHeader() {
                 }
               />
             </Sheet>
-          ) : null}
+          )}
 
           <Button
             variant="outline"
@@ -195,23 +242,10 @@ function ShoppingHeader() {
           </Button>
         </div>
 
-        {/* Mobile sheet — menú unificado */}
+        {/* Mobile sheet */}
         <Sheet open={openMobileMenu} onOpenChange={setOpenMobileMenu}>
           <SheetContent side="left" className="w-72 bg-background p-0">
-            <div className="flex flex-col h-full">
-              {/* Header del sheet */}
-              <div className="flex items-center justify-between px-5 py-4 border-b border-border/40">
-                <img
-                  src={logo}
-                  alt="Valeria Sarmiento"
-                  className="h-8 w-auto opacity-90"
-                />
-                <button onClick={() => setOpenMobileMenu(false)}>
-                  <X className="w-5 h-5 text-foreground/50" />
-                </button>
-              </div>
-
-              {/* Info usuario o botones de auth */}
+            <div className="flex flex-col h-full pt-10">
               {user ? (
                 <div className="flex items-center gap-3 px-5 py-4 border-b border-border/30">
                   <Avatar className="w-9 h-9 border border-primary/30">
@@ -252,7 +286,6 @@ function ShoppingHeader() {
                 </div>
               )}
 
-              {/* Nav items */}
               <nav className="flex flex-col px-5 py-4 gap-1 flex-1">
                 {mainMenuItems.map((item) => (
                   <button
@@ -265,7 +298,6 @@ function ShoppingHeader() {
                 ))}
               </nav>
 
-              {/* Acciones — solo si está logueado */}
               {user && (
                 <div className="flex flex-col px-5 py-4 gap-2 border-t border-border/30">
                   <button
@@ -306,7 +338,14 @@ function ShoppingHeader() {
           </nav>
         </div>
 
-        <div className="hidden lg:block">
+        {/* Desktop right — búsqueda + cuenta/carrito */}
+        <div className="hidden lg:flex items-center gap-3">
+          <button
+            onClick={() => setOpenSearch(true)}
+            className="w-8 h-8 flex items-center justify-center border border-border/50 rounded-lg hover:bg-primary/5 hover:border-primary/30 transition-colors"
+          >
+            <Search className="w-4 h-4 text-foreground/50" />
+          </button>
           <HeaderRightContent />
         </div>
       </div>

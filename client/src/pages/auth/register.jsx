@@ -24,7 +24,9 @@ function AuthRegister() {
 
     dispatch(registerUser(formData)).then((data) => {
       if (data?.payload?.success) {
-        navigate("/auth/login");
+        navigate(
+          `/auth/verify-email?email=${encodeURIComponent(formData.email)}`,
+        );
       } else {
         setError(
           data?.payload?.message ||

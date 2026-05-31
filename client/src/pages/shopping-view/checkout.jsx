@@ -84,8 +84,6 @@ function ShoppingCheckout() {
       paymentId: "",
       payerId: "",
     };
-    console.log("cartItems.items:", JSON.stringify(cartItems?.items));
-    console.log("orderData cartItems:", JSON.stringify(orderData.cartItems));
 
     dispatch(createNewOrder(orderData)).then((data) => {
       if (data?.payload?.success) {

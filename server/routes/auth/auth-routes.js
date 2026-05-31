@@ -7,6 +7,10 @@ const {
   refreshAccessToken,
   forgotPassword,
   resetPassword,
+  verifyEmail,
+  resendVerificationCode,
+  changePassword,
+  updateProfile,
 } = require("../../controllers/auth/auth-controller");
 const passport = require("../../config/passport");
 const jwt = require("jsonwebtoken");
@@ -20,6 +24,11 @@ router.post("/logout", logoutUser);
 router.post("/refresh-token", refreshAccessToken);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
+router.post("/verify-email", verifyEmail);
+router.post("/resend-verification", resendVerificationCode);
+router.post("/change-password", authMiddleware, changePassword);
+router.put("/update-profile", authMiddleware, updateProfile);
+
 router.get("/check-auth", authMiddleware, (req, res) => {
   const user = req.user;
   res.status(200).json({
@@ -54,7 +63,6 @@ router.get(
   },
 );
 
-// Endpoint que setea las cookies correctamente via proxy de Vercel
 router.get("/google/session", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);

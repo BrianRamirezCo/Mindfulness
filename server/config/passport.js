@@ -9,7 +9,7 @@ passport.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL:
         process.env.NODE_ENV === "production"
-          ? "https://mindfulness-pi.vercel.app/api/auth/google/callback"
+          ? `${process.env.SERVER_URL}/api/auth/google/callback`
           : "http://localhost:5000/api/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
@@ -21,6 +21,7 @@ passport.use(
 
           if (user) {
             user.googleId = profile.id;
+            user.isVerified = true;
             await user.save();
           } else {
             user = new User({
@@ -28,7 +29,14 @@ passport.use(
               email: profile.emails[0].value,
               googleId: profile.id,
               role: "user",
+              isVerified: true,
             });
+            await user.save();
+          }
+        } else {
+          // Usuario Google existente — asegurarse que esté verificado
+          if (!user.isVerified) {
+            user.isVerified = true;
             await user.save();
           }
         }

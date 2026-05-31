@@ -2,7 +2,10 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const User = require("../../models/User");
-const { sendPasswordResetEmail } = require("../../helpers/email");
+const {
+  sendPasswordResetEmail,
+  sendVerificationEmail,
+} = require("../../helpers/email");
 
 const registerUser = async (req, res) => {
   const { userName, email, password } = req.body;
@@ -16,16 +19,106 @@ const registerUser = async (req, res) => {
       });
 
     const hashPassword = await bcrypt.hash(password, 12);
+
+    // Generar código de verificación de 6 dígitos
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000,
+    ).toString();
+    const verificationCodeExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
+
     const newUser = new User({
       userName,
       email,
       password: hashPassword,
+      isVerified: false,
+      verificationCode,
+      verificationCodeExpiry,
     });
 
     await newUser.save();
+    await sendVerificationEmail(email, verificationCode);
+
     res.status(200).json({
       success: true,
-      message: "Registro exitoso",
+      message: "Registro exitoso. Revisá tu email para verificar tu cuenta.",
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "Error en el servidor",
+    });
+  }
+};
+
+const verifyEmail = async (req, res) => {
+  try {
+    const { email, code } = req.body;
+
+    const user = await User.findOne({
+      email,
+      verificationCode: code,
+      verificationCodeExpiry: { $gt: new Date() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Código inválido o expirado",
+      });
+    }
+
+    user.isVerified = true;
+    user.verificationCode = null;
+    user.verificationCodeExpiry = null;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Cuenta verificada correctamente",
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "Error en el servidor",
+    });
+  }
+};
+
+const resendVerificationCode = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "No existe una cuenta con ese email",
+      });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({
+        success: false,
+        message: "La cuenta ya está verificada",
+      });
+    }
+
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000,
+    ).toString();
+    const verificationCodeExpiry = new Date(Date.now() + 15 * 60 * 1000);
+
+    user.verificationCode = verificationCode;
+    user.verificationCodeExpiry = verificationCodeExpiry;
+    await user.save();
+
+    await sendVerificationEmail(email, verificationCode);
+
+    res.status(200).json({
+      success: true,
+      message: "Código reenviado correctamente",
     });
   } catch (e) {
     console.log(e);
@@ -46,6 +139,15 @@ const loginUser = async (req, res) => {
         success: false,
         message: "No existe una cuenta con ese email",
       });
+
+    if (!checkUser.isVerified === false) {
+      return res.json({
+        success: false,
+        message: "Verificá tu cuenta antes de ingresar",
+        needsVerification: true,
+        email,
+      });
+    }
 
     const checkPasswordMatch = await bcrypt.compare(
       password,
@@ -99,6 +201,47 @@ const loginUser = async (req, res) => {
           userName: checkUser.userName,
         },
       });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "Error en el servidor",
+    });
+  }
+};
+
+const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Usuario no encontrado",
+      });
+    }
+
+    const checkPasswordMatch = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
+    if (!checkPasswordMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "La contraseña actual es incorrecta",
+      });
+    }
+
+    const hashPassword = await bcrypt.hash(newPassword, 12);
+    user.password = hashPassword;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Contraseña actualizada correctamente",
+    });
   } catch (e) {
     console.log(e);
     res.status(500).json({
@@ -270,6 +413,41 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const updateProfile = async (req, res) => {
+  try {
+    const { userName } = req.body;
+    const userId = req.user.id;
+
+    const existingUser = await User.findOne({ userName });
+    if (existingUser && existingUser._id.toString() !== userId) {
+      return res.status(400).json({
+        success: false,
+        message: "Ese nombre de usuario ya está en uso",
+      });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { userName },
+      { new: true },
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Perfil actualizado correctamente",
+      user: {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+        userName: user.userName,
+      },
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ success: false, message: "Error en el servidor" });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -278,4 +456,8 @@ module.exports = {
   refreshAccessToken,
   forgotPassword,
   resetPassword,
+  verifyEmail,
+  resendVerificationCode,
+  changePassword,
+  updateProfile,
 };

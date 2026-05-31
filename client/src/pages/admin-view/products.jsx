@@ -17,9 +17,6 @@ import {
 } from "@/store/admin/products-slice";
 import { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { API_URL } from "@/lib/api";
-import axios from "axios";
-import { Upload, FileText } from "lucide-react";
 
 const initialFormData = {
   image: null,
@@ -41,40 +38,10 @@ function AdminProducts() {
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
   const [imageLoadingState, setImageLoadingState] = useState(false);
   const [currentEditedId, setCurrentEditedId] = useState(null);
-
-  // Ebook PDF upload
-  const [ebookFile, setEbookFile] = useState(null);
-  const [ebookPublicId, setEbookPublicId] = useState("");
-  const [ebookLoading, setEbookLoading] = useState(false);
-  const [ebookFileName, setEbookFileName] = useState("");
+  const [ebookLink, setEbookLink] = useState("");
 
   const { productList } = useSelector((state) => state.adminProducts);
   const dispatch = useDispatch();
-
-  async function handleEbookUpload(file) {
-    if (!file) return;
-    setEbookLoading(true);
-    setEbookFileName(file.name);
-
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      try {
-        const response = await axios.post(
-          `${API_URL}/api/admin/products/upload-ebook`,
-          { file: reader.result },
-          { withCredentials: true },
-        );
-        if (response.data?.result?.public_id) {
-          setEbookPublicId(response.data.result.public_id);
-        }
-      } catch (e) {
-        console.log(e);
-      } finally {
-        setEbookLoading(false);
-      }
-    };
-    reader.readAsDataURL(file);
-  }
 
   function onSubmit(event) {
     event.preventDefault();
@@ -82,8 +49,8 @@ function AdminProducts() {
     const productData = {
       ...formData,
       image: uploadedImageUrl,
-      ...(formData.type === "ebook" && ebookPublicId
-        ? { ebookFile: ebookPublicId }
+      ...(formData.type === "ebook" && ebookLink
+        ? { ebookFile: ebookLink }
         : {}),
     };
 
@@ -96,8 +63,7 @@ function AdminProducts() {
             setFormData(initialFormData);
             setOpenCreateProductsDialog(false);
             setCurrentEditedId(null);
-            setEbookPublicId("");
-            setEbookFileName("");
+            setEbookLink("");
           }
         })
       : dispatch(addNewProduct(productData)).then((data) => {
@@ -106,8 +72,7 @@ function AdminProducts() {
             setOpenCreateProductsDialog(false);
             setImageFile(null);
             setFormData(initialFormData);
-            setEbookPublicId("");
-            setEbookFileName("");
+            setEbookLink("");
           }
         });
   }
@@ -127,7 +92,7 @@ function AdminProducts() {
       .every((item) => item);
 
     if (formData.type === "ebook" && !currentEditedId) {
-      return baseValid && ebookPublicId !== "";
+      return baseValid && ebookLink !== "";
     }
 
     return baseValid;
@@ -185,13 +150,12 @@ function AdminProducts() {
           setOpenCreateProductsDialog(false);
           setCurrentEditedId(null);
           setFormData(initialFormData);
-          setEbookPublicId("");
-          setEbookFileName("");
+          setEbookLink("");
         }}
       >
         <SheetContent side="right" className="overflow-auto">
           <SheetHeader>
-            <SheetTitle className="font-serif text-xl tracking-wide">
+            <SheetTitle className="font-serif text-xl trackingingwide">
               {currentEditedId !== null ? "Editar libro" : "Agregar libro"}
             </SheetTitle>
           </SheetHeader>
@@ -206,43 +170,23 @@ function AdminProducts() {
             isEditMode={currentEditedId !== null}
           />
 
-          {/* Upload PDF ebook — solo si tipo es ebook */}
+          {/* Link de Google Drive para ebook */}
           {formData.type === "ebook" && (
             <div className="mt-4 px-1">
               <p className="text-xs uppercase tracking-widest text-foreground/50 font-sans mb-2">
-                Archivo PDF del ebook
+                Link de descarga (Google Drive)
               </p>
-              <label className="flex flex-col items-center justify-center w-full border border-dashed border-border/50 rounded-xl p-6 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-colors">
-                <input
-                  type="file"
-                  accept=".pdf"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    setEbookFile(file);
-                    handleEbookUpload(file);
-                  }}
-                />
-                {ebookLoading ? (
-                  <p className="text-sm text-foreground/50 font-sans">
-                    Subiendo PDF...
-                  </p>
-                ) : ebookPublicId ? (
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-primary" />
-                    <p className="text-sm text-foreground/70 font-sans">
-                      {ebookFileName}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-2">
-                    <Upload className="w-6 h-6 text-foreground/30" />
-                    <p className="text-sm text-foreground/50 font-sans">
-                      Clickeá para subir el PDF
-                    </p>
-                  </div>
-                )}
-              </label>
+              <input
+                type="url"
+                value={ebookLink}
+                onChange={(e) => setEbookLink(e.target.value)}
+                placeholder="https://drive.google.com/..."
+                className="w-full border border-border/50 rounded-lg px-4 py-2.5 text-sm font-sans bg-background focus:outline-none focus:border-primary/50"
+              />
+              <p className="text-xs text-foreground/40 font-sans mt-1">
+                Compartí el archivo en Drive como "cualquiera con el link" y
+                pegá la URL acá.
+              </p>
             </div>
           )}
 

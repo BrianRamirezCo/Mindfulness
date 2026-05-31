@@ -19,17 +19,24 @@ import CheckAuth from "./components/common/check-auth";
 import ForgotPassword from "./pages/auth/forgot-password";
 import ResetPassword from "./pages/auth/reset-password";
 import GoogleSuccess from "./pages/auth/google-success";
+import VerifyEmail from "./pages/auth/verify-email";
 import UnauthPage from "./pages/unauth-page";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { checkAuth } from "./store/auth-slice";
-import { Skeleton } from "@/components/ui/skeleton";
 import PaymentSuccessPage from "./pages/shopping-view/payment-success";
 import PaymentFailurePage from "./pages/shopping-view/payment-failure";
 import PaymentPendingPage from "./pages/shopping-view/payment-pending";
 import SearchProducts from "./pages/shopping-view/search";
 import ReflectionsPage from "./pages/shopping-view/reflections";
 import ReflectionDetailPage from "./pages/shopping-view/reflection-detail";
+import AboutPage from "./pages/shopping-view/about";
+import ContactPage from "./pages/shopping-view/contact";
+import TermsPage from "./pages/shopping-view/terms";
+import PrivacyPage from "./pages/shopping-view/privacy";
+import ReturnsPage from "./pages/shopping-view/returns";
+import FaqPage from "./pages/shopping-view/faq";
+import CoursesPage from "./pages/shopping-view/courses";
 
 function App() {
   const { user, isAuthenticated, isLoading } = useSelector(
@@ -77,6 +84,7 @@ function App() {
           <Route path="register" element={<AuthRegister />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
           <Route path="reset-password" element={<ResetPassword />} />
+          <Route path="verify-email" element={<VerifyEmail />} />
         </Route>
         <Route
           path="/admin"
@@ -111,6 +119,13 @@ function App() {
           <Route path="search" element={<SearchProducts />} />
           <Route path="reflections" element={<ReflectionsPage />} />
           <Route path="reflections/:id" element={<ReflectionDetailPage />} />
+          <Route path="sobre-mi" element={<AboutPage />} />
+          <Route path="contacto" element={<ContactPage />} />
+          <Route path="terminos" element={<TermsPage />} />
+          <Route path="privacidad" element={<PrivacyPage />} />
+          <Route path="devoluciones" element={<ReturnsPage />} />
+          <Route path="faq" element={<FaqPage />} />
+          <Route path="cursos" element={<CoursesPage />} />
         </Route>
         <Route path="/unauth-page" element={<UnauthPage />} />
         <Route path="*" element={<NotFound />} />

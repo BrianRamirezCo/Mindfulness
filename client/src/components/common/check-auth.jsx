@@ -8,6 +8,7 @@ function CheckAuth({ isAuthenticated, user, children }) {
     "/auth/register",
     "/auth/forgot-password",
     "/auth/reset-password",
+    "/auth/verify-email",
   ];
 
   const publicShopRoutes = [
@@ -15,8 +16,14 @@ function CheckAuth({ isAuthenticated, user, children }) {
     "/shop/listing",
     "/shop/product/",
     "/shop/search",
-    "/shop/search",
     "/shop/reflections",
+    "/shop/sobre-mi",
+    "/shop/contacto",
+    "/shop/terminos",
+    "/shop/privacidad",
+    "/shop/devoluciones",
+    "/shop/faq",
+    "/shop/cursos",
   ];
 
   const isPublicAuthRoute = publicAuthRoutes.some((route) =>

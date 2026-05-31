@@ -2,19 +2,12 @@ const { MercadoPagoConfig, Preference, Payment } = require("mercadopago");
 const Order = require("../../models/Order");
 const Cart = require("../../models/Cart");
 const Product = require("../../models/Product");
-const { generateEbookDownloadUrl } = require("../../helpers/cloudinary");
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MP_ACCESS_TOKEN,
 });
 
 const createOrder = async (req, res) => {
-  console.log("=== CREATE ORDER ===");
-  console.log("body:", JSON.stringify(req.body, null, 2));
-  console.log("cartItems type:", typeof req.body.cartItems);
-  console.log("cartItems value:", req.body.cartItems);
-  console.log(Order.schema.path("cartItems"));
-  console.log(Order.schema.obj.cartItems);
   try {
     const {
       userId,
@@ -179,12 +172,10 @@ const generateEbookDownloadLink = async (req, res) => {
       });
     }
 
-    const { url, expiresAt } = generateEbookDownloadUrl(product.ebookFile);
-
+    // Usamos directamente el link de Google Drive
     res.status(200).json({
       success: true,
-      url,
-      expiresAt,
+      url: product.ebookFile,
     });
   } catch (e) {
     console.log(e);

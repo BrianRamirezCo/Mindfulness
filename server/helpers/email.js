@@ -29,6 +29,47 @@ async function sendPasswordResetEmail(email, resetUrl) {
     `,
   });
 }
+
+async function sendVerificationEmail(email, code) {
+  await resend.emails.send({
+    from: process.env.RESEND_FROM_EMAIL,
+    to: email,
+    subject: "Verificá tu cuenta — Valeria Sarmiento",
+    html: `
+      <div style="font-family: Georgia, serif; max-width: 500px; margin: 0 auto; padding: 40px 20px; color: #6B5744;">
+        
+        <p style="font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #B5A99A; font-family: sans-serif; margin-bottom: 32px; text-align: center;">
+          Valeria Sarmiento · Mindfulness & Bienestar
+        </p>
+
+        <h1 style="font-size: 24px; font-weight: normal; margin-bottom: 16px; color: #6B5744; text-align: center;">
+          Verificá tu cuenta
+        </h1>
+
+        <p style="font-size: 15px; line-height: 1.6; color: #9E8878; margin-bottom: 32px; text-align: center;">
+          Usá el siguiente código para verificar tu cuenta. Expira en 15 minutos.
+        </p>
+
+        <div style="background-color: #F5EFE8; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 32px;">
+          <p style="font-size: 40px; font-weight: bold; letter-spacing: 0.3em; color: #A8896C; font-family: sans-serif; margin: 0;">
+            ${code}
+          </p>
+        </div>
+
+        <p style="font-size: 12px; color: #B5B89A; line-height: 1.6; text-align: center;">
+          Si no creaste una cuenta, podés ignorar este email.
+        </p>
+
+        <hr style="border: none; border-top: 1px solid #E2D8CF; margin: 32px 0;" />
+
+        <p style="font-size: 11px; color: #B5B89A; font-family: sans-serif; text-align: center;">
+          © ${new Date().getFullYear()} Valeria Sarmiento · Mindfulness & Bienestar
+        </p>
+      </div>
+    `,
+  });
+}
+
 async function sendNewsletterEmail(emails, reflection) {
   const publicUrl = `${process.env.CLIENT_URL}/shop/reflections/${reflection._id}`;
 
@@ -74,7 +115,7 @@ async function sendNewsletterEmail(emails, reflection) {
 
           <p style="font-size: 11px; color: #C5B9B0; font-family: sans-serif; line-height: 1.6; text-align: center;">
             Recibís este email porque te suscribiste a las reflexiones de Valeria Sarmiento.<br/>
-            <a href="${process.env.CLIENT_URL}/api/reflections/unsubscribe/${email}" 
+            <a href="${process.env.SERVER_URL}/api/reflections/unsubscribe/${email}" 
               style="color: #C5B9B0; text-decoration: underline;">
               Desuscribirme
             </a>
@@ -92,4 +133,8 @@ async function sendNewsletterEmail(emails, reflection) {
   await Promise.all(emailPromises);
 }
 
-module.exports = { sendPasswordResetEmail, sendNewsletterEmail };
+module.exports = {
+  sendPasswordResetEmail,
+  sendVerificationEmail,
+  sendNewsletterEmail,
+};

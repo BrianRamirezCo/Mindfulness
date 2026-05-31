@@ -1,22 +1,14 @@
 import { Button } from "@/components/ui/button";
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  BookOpen,
-  Brain,
-  Heart,
-  Sunrise,
-  Leaf,
-  Sparkles,
-} from "lucide-react";
+import { BookOpen, Brain, Heart, Sunrise, Leaf, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllFilteredProducts } from "@/store/shop/products-slice";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { useNavigate } from "react-router-dom";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
-import { getFeatureImages } from "@/store/common-slice";
 import { subscribeNewsletter } from "@/store/reflection-slice";
+import heroBook2 from "@/assets/hero-book2.png";
+import heroGirl2 from "@/assets/hero-girl2.png";
 
 function NewsletterSection() {
   const [email, setEmail] = useState("");
@@ -90,9 +82,7 @@ const categoriesWithIcon = [
 ];
 
 function ShoppingHome() {
-  const [currentSlide, setCurrentSlide] = useState(0);
   const { productList } = useSelector((state) => state.shopProducts);
-  const { featureImageList } = useSelector((state) => state.commonFeature);
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -116,19 +106,9 @@ function ShoppingHome() {
         quantity: 1,
       }),
     ).then((data) => {
-      if (data?.payload?.success) {
-        dispatch(fetchCartItems(user?.id));
-      }
+      if (data?.payload?.success) dispatch(fetchCartItems(user?.id));
     });
   }
-
-  useEffect(() => {
-    if (!featureImageList || featureImageList.length <= 1) return;
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % featureImageList.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [featureImageList]);
 
   useEffect(() => {
     dispatch(
@@ -139,96 +119,89 @@ function ShoppingHome() {
     );
   }, [dispatch]);
 
-  useEffect(() => {
-    dispatch(getFeatureImages());
-  }, [dispatch]);
-
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden">
-      {" "}
-      {/* ← CAMBIO 1 */}
-      {/* Hero / Banner */}
-      <div
-        className="relative w-full overflow-hidden"
-        style={{ height: "clamp(220px, 50vw, 500px)" }}
-      >
-        {featureImageList && featureImageList.length > 0 ? (
-          <>
-            {featureImageList.map((slide, index) => (
-              <img
-                src={slide?.image}
-                key={index}
-                className={`${
-                  index === currentSlide ? "opacity-100" : "opacity-0"
-                } absolute top-0 left-0 w-full max-w-full h-full object-cover object-center transition-opacity duration-1000`} // ← CAMBIO 2
-              />
-            ))}
-            {featureImageList.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                {featureImageList.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrentSlide(i)}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      i === currentSlide
-                        ? "bg-background w-4"
-                        : "bg-background/50 w-2"
-                    }`}
-                  />
-                ))}
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-[#F5EFE8]">
+        <div className="relative max-w-6xl mx-auto px-6 md:px-10 py-14 md:py-24">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-center md:items-center">
+            {/* LEFT */}
+            <div className="flex flex-col gap-6 order-2 md:order-1 z-10">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 w-fit">
+                <Leaf className="w-4 h-4 text-primary" />
+                <span className="text-xs font-medium tracking-widest text-primary uppercase font-sans">
+                  Nuevo libro
+                </span>
               </div>
-            )}
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() =>
-                setCurrentSlide(
-                  (prev) =>
-                    (prev - 1 + featureImageList.length) %
-                    featureImageList.length,
-                )
-              }
-              className="absolute top-1/2 left-3 md:left-6 transform -translate-y-1/2 bg-background/80 border-primary/30 hover:bg-primary/10 w-8 h-8 md:w-10 md:h-10"
-            >
-              <ChevronLeftIcon className="w-3 h-3 md:w-4 md:h-4 text-primary" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() =>
-                setCurrentSlide((prev) => (prev + 1) % featureImageList.length)
-              }
-              className="absolute top-1/2 right-3 md:right-6 transform -translate-y-1/2 bg-background/80 border-primary/30 hover:bg-primary/10 w-8 h-8 md:w-10 md:h-10"
-            >
-              <ChevronRightIcon className="w-3 h-3 md:w-4 md:h-4 text-primary" />
-            </Button>
-          </>
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-background via-primary/10 to-secondary/20 flex flex-col items-center justify-center text-center px-4">
-            <div className="w-16 h-16 rounded-full border border-primary/40 flex items-center justify-center mb-6">
-              <span className="text-primary font-serif text-2xl font-bold">
-                VS
-              </span>
+
+              <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-foreground leading-tight tracking-wide">
+                Tu camino hacia
+                <br />
+                una vida <span className="text-primary italic">más plena</span>
+                <span className="text-primary/30 ml-2">♡</span>
+              </h1>
+
+              <p className="text-foreground/60 font-sans text-sm md:text-base leading-relaxed max-w-md">
+                Mi Diario de Prácticas Mindfulness es una guía práctica para
+                cultivar calma, claridad y bienestar en tu día a día.
+              </p>
+
+              {/* Beneficios */}
+              <div className="grid grid-cols-3 gap-4 mt-2">
+                <div className="flex flex-col items-start gap-2">
+                  <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center shadow-sm">
+                    <Leaf className="w-4 h-4 text-primary" />
+                  </div>
+                  <p className="text-xs text-foreground/60 font-sans leading-relaxed">
+                    Ejercicios simples para cada día
+                  </p>
+                </div>
+                <div className="flex flex-col items-start gap-2">
+                  <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center shadow-sm">
+                    <Heart className="w-4 h-4 text-primary" />
+                  </div>
+                  <p className="text-xs text-foreground/60 font-sans leading-relaxed">
+                    Más foco, calma y equilibrio
+                  </p>
+                </div>
+                <div className="flex flex-col items-start gap-2">
+                  <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center shadow-sm">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                  </div>
+                  <p className="text-xs text-foreground/60 font-sans leading-relaxed">
+                    Ilustraciones que inspiran
+                  </p>
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div className="flex flex-wrap gap-3 mt-2 md:justify-start justify-center">
+                <Button
+                  onClick={() => navigate("/shop/listing")}
+                  className="h-12 px-8 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm tracking-widest uppercase shadow-md"
+                >
+                  Comprar el libro
+                </Button>
+              </div>
             </div>
-            <h1 className="font-serif text-3xl md:text-5xl text-foreground mb-4 tracking-wide">
-              Valeria Sarmiento
-            </h1>
-            <p className="text-foreground/60 text-base tracking-widest uppercase mb-6">
-              Mindfulness & Bienestar
-            </p>
-            <p className="text-foreground/70 max-w-md text-sm md:text-base mb-8 leading-relaxed">
-              Descubrí los libros que van a transformar tu relación con el
-              presente.
-            </p>
-            <Button
-              onClick={() => navigate("/shop/listing")}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 tracking-widest uppercase text-sm"
-            >
-              Ver libros
-            </Button>
+
+            {/* RIGHT */}
+            <div className="relative flex items-center justify-center order-1 md:order-2 h-[260px] md:h-[500px]">
+              <img
+                src={heroBook2}
+                alt="Libro mindfulness"
+                className="relative z-20 w-[40%] md:absolute md:left-0 md:top-0 md:w-[52%] object-contain drop-shadow-2xl"
+              />
+              <img
+                src={heroGirl2}
+                alt="Meditación"
+                className="relative z-10 w-[55%] md:absolute md:right-0 md:top-0 md:w-[58%] object-contain"
+              />
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      </section>
+
       {/* Sobre Valeria */}
       <section className="py-12 bg-primary/5 border-y border-border/40">
         <div className="container mx-auto px-4 max-w-3xl text-center">
@@ -244,6 +217,7 @@ function ShoppingHome() {
           </p>
         </div>
       </section>
+
       {/* Categorías */}
       <section className="py-10 md:py-14">
         <div className="container mx-auto px-4">
@@ -274,6 +248,7 @@ function ShoppingHome() {
           </div>
         </div>
       </section>
+
       {/* Libros destacados */}
       <section className="py-10 md:py-14 bg-primary/5 border-t border-border/40">
         <div className="container mx-auto px-4">
@@ -297,8 +272,10 @@ function ShoppingHome() {
           </div>
         </div>
       </section>
+
       {/* Newsletter */}
       <NewsletterSection />
+
       {/* CTA final */}
       <section className="py-12 md:py-16 text-center">
         <div className="container mx-auto px-4 max-w-xl">
