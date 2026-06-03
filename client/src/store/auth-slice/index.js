@@ -106,37 +106,36 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(registerUser.pending, (state) => {
-        state.isLoading = true;
-      })
+      // Register — no toca isLoading para no re-renderizar App
+      .addCase(registerUser.pending, () => {})
       .addCase(registerUser.fulfilled, (state) => {
-        state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
       })
       .addCase(registerUser.rejected, (state) => {
-        state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
       })
-      .addCase(loginUser.pending, (state) => {
-        state.isLoading = true;
-      })
+
+      // Login — no toca isLoading para no re-renderizar App
+      .addCase(loginUser.pending, () => {})
       .addCase(loginUser.fulfilled, (state, action) => {
-        state.isLoading = false;
         state.user = action.payload.success ? action.payload.user : null;
-        state.isAuthenticated = action.payload.success;
+        state.isAuthenticated = action.payload.success ? true : false;
       })
       .addCase(loginUser.rejected, (state) => {
-        state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
       })
+
+      // Logout
       .addCase(logoutUser.fulfilled, (state) => {
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
       })
+
+      // CheckAuth
       .addCase(checkAuth.pending, (state) => {
         state.isLoading = true;
       })
@@ -150,6 +149,8 @@ const authSlice = createSlice({
         state.user = null;
         state.isAuthenticated = false;
       })
+
+      // Refresh token
       .addCase(refreshAccessToken.fulfilled, (state) => {
         state.isLoading = false;
       })

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/store/auth-slice";
 import { API_URL } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 
@@ -29,7 +31,6 @@ function VerifyEmail() {
       document.getElementById(`code-${index - 1}`)?.focus();
     }
   }
-
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
@@ -45,12 +46,17 @@ function VerifyEmail() {
         code: fullCode,
       });
       if (response.data?.success) {
-        navigate("/auth/login");
+        dispatch(setUser(response.data.user));
+        navigate("/shop/home");
       } else {
         setError(response.data?.message || "Código inválido");
       }
-    } catch {
-      setError("Hubo un error. Intentá de nuevo.");
+    } catch (e) {
+      if (e.response?.status === 400) {
+        setError(e.response?.data?.message || "Código inválido o expirado");
+      } else {
+        navigate("/auth/login?verified=true");
+      }
     } finally {
       setLoading(false);
     }

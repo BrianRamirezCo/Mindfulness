@@ -73,16 +73,51 @@ const verifyEmail = async (req, res) => {
     user.verificationCodeExpiry = null;
     await user.save();
 
-    res.status(200).json({
-      success: true,
-      message: "Cuenta verificada correctamente",
-    });
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+        email: user.email,
+        userName: user.userName,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "60m" },
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user._id },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: "7d" },
+    );
+
+    const isProd = process.env.NODE_ENV === "production";
+
+    res
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
+        maxAge: 60 * 60 * 1000,
+      })
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      })
+      .json({
+        success: true,
+        message: "Cuenta verificada correctamente",
+        user: {
+          id: user._id,
+          email: user.email,
+          role: user.role,
+          userName: user.userName,
+        },
+      });
   } catch (e) {
     console.log(e);
-    res.status(500).json({
-      success: false,
-      message: "Error en el servidor",
-    });
+    res.status(500).json({ success: false, message: "Error en el servidor" });
   }
 };
 

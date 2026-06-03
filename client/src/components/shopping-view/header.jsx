@@ -1,6 +1,14 @@
-import { LogOut, Menu, ShoppingCart, UserCog, Search, X } from "lucide-react";
+import {
+  LogOut,
+  Menu,
+  ShoppingCart,
+  UserCog,
+  Search,
+  X,
+  User,
+} from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Sheet, SheetContent } from "../ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetDescription } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -194,8 +202,9 @@ function ShoppingHeader() {
           />
         </Link>
 
-        {/* Mobile — búsqueda + carrito + hamburguesa */}
+        {/* Mobile — [🔍] [🛒 o 👤] [☰] */}
         <div className="flex items-center gap-2 lg:hidden">
+          {/* Búsqueda */}
           <button
             onClick={() => setOpenSearch(true)}
             className="w-8 h-8 flex items-center justify-center border border-border/50 rounded-lg hover:bg-primary/5 transition-colors"
@@ -203,48 +212,77 @@ function ShoppingHeader() {
             <Search className="w-4 h-4 text-foreground/50" />
           </button>
 
-          {user && (
-            <Sheet
-              open={openCartSheet}
-              onOpenChange={() => setOpenCartSheet(false)}
-            >
+          {/* Si está logueado: carrito + avatar | Si no: ícono de persona */}
+          {user ? (
+            <>
+              <Sheet
+                open={openCartSheet}
+                onOpenChange={() => setOpenCartSheet(false)}
+              >
+                <Button
+                  onClick={() => setOpenCartSheet(true)}
+                  variant="outline"
+                  size="icon"
+                  className="relative border-primary/30 hover:bg-primary/10 w-8 h-8"
+                >
+                  <ShoppingCart className="w-4 h-4 text-primary" />
+                  {cartItems?.items?.length > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                      {cartItems.items.length}
+                    </span>
+                  )}
+                </Button>
+                <UserCartWrapper
+                  setOpenCartSheet={setOpenCartSheet}
+                  cartItems={
+                    cartItems && cartItems.items && cartItems.items.length > 0
+                      ? cartItems.items
+                      : []
+                  }
+                />
+              </Sheet>
+
+              <button
+                onClick={() => setOpenMobileMenu(true)}
+                className="rounded-full outline-none"
+              >
+                <Avatar className="cursor-pointer border border-primary/30 w-8 h-8">
+                  <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-xs">
+                    {user?.userName[0].toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </button>
+            </>
+          ) : (
+            <>
+              {/* Ícono de persona → va al login */}
+              <button
+                onClick={() => navigate("/auth/login")}
+                className="w-8 h-8 flex items-center justify-center border border-border/50 rounded-lg hover:bg-primary/5 transition-colors"
+              >
+                <User className="w-4 h-4 text-foreground/50" />
+              </button>
+
+              {/* Hamburguesa */}
               <Button
-                onClick={() => setOpenCartSheet(true)}
                 variant="outline"
                 size="icon"
-                className="relative border-primary/30 hover:bg-primary/10 w-8 h-8"
+                className="border-primary/30 w-8 h-8"
+                onClick={() => setOpenMobileMenu(true)}
               >
-                <ShoppingCart className="w-4 h-4 text-primary" />
-                {cartItems?.items?.length > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-primary text-primary-foreground text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                    {cartItems.items.length}
-                  </span>
-                )}
+                <Menu className="h-4 w-4 text-primary" />
               </Button>
-              <UserCartWrapper
-                setOpenCartSheet={setOpenCartSheet}
-                cartItems={
-                  cartItems && cartItems.items && cartItems.items.length > 0
-                    ? cartItems.items
-                    : []
-                }
-              />
-            </Sheet>
+            </>
           )}
-
-          <Button
-            variant="outline"
-            size="icon"
-            className="border-primary/30 w-8 h-8"
-            onClick={() => setOpenMobileMenu(true)}
-          >
-            <Menu className="h-4 w-4 text-primary" />
-          </Button>
         </div>
 
         {/* Mobile sheet */}
         <Sheet open={openMobileMenu} onOpenChange={setOpenMobileMenu}>
           <SheetContent side="left" className="w-72 bg-background p-0">
+            <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
+            <SheetDescription className="sr-only">
+              Navegación principal
+            </SheetDescription>
             <div className="flex flex-col h-full pt-10">
               {user ? (
                 <div className="flex items-center gap-3 px-5 py-4 border-b border-border/30">
@@ -338,7 +376,7 @@ function ShoppingHeader() {
           </nav>
         </div>
 
-        {/* Desktop right — búsqueda + cuenta/carrito */}
+        {/* Desktop right */}
         <div className="hidden lg:flex items-center gap-3">
           <button
             onClick={() => setOpenSearch(true)}

@@ -1,30 +1,57 @@
-import CommonForm from "@/components/common/form";
-import { loginFormControls } from "@/config";
 import { loginUser } from "@/store/auth-slice";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { API_URL } from "@/lib/api";
-
-const initialState = {
-  email: "",
-  password: "",
-};
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Eye, EyeOff } from "lucide-react";
 
 function AuthLogin() {
-  const [formData, setFormData] = useState(initialState);
-  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const verified = searchParams.get("verified");
 
-  function onSubmit(event) {
-    event.preventDefault();
-    setError("");
+  function validate() {
+    const newErrors = {};
+    if (!formData.email) newErrors.email = "El email es obligatorio";
+    else if (!/\S+@\S+\.\S+/.test(formData.email))
+      newErrors.email = "El email no es válido";
+    if (!formData.password) newErrors.password = "La contraseña es obligatoria";
+    return newErrors;
+  }
 
-    dispatch(loginUser(formData)).then((data) => {
-      if (!data?.payload?.success) {
-        setError(data?.payload?.message || "Email o contraseña incorrectos.");
+  async function onSubmit(e) {
+    e.preventDefault();
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+    setErrors({});
+    setLoading(true);
+
+    const data = await dispatch(loginUser(formData));
+    setLoading(false);
+
+    if (data?.payload?.success === false) {
+      if (data?.payload?.needsVerification) {
+        navigate(
+          `/auth/verify-email?email=${encodeURIComponent(formData.email)}`,
+        );
+      } else {
+        setErrors({
+          general: data?.payload?.message || "Email o contraseña incorrectos.",
+        });
       }
-    });
+      return;
+    }
   }
 
   function handleGoogleLogin() {
@@ -42,19 +69,77 @@ function AuthLogin() {
         </p>
       </div>
 
-      {error && (
-        <p className="text-sm text-destructive font-sans text-center bg-destructive/5 border border-destructive/20 rounded-lg py-2 px-4">
-          {error}
+      {/* Mensaje de cuenta verificada */}
+      {verified && (
+        <p className="text-sm text-primary font-sans text-center bg-primary/5 border border-primary/20 rounded-lg py-2 px-4">
+          ¡Cuenta verificada correctamente! Ya podés ingresar.
         </p>
       )}
 
-      <CommonForm
-        formControls={loginFormControls}
-        buttonText="Ingresar"
-        formData={formData}
-        setFormData={setFormData}
-        onSubmit={onSubmit}
-      />
+      {errors.general && (
+        <p className="text-sm text-destructive font-sans text-center bg-destructive/5 border border-destructive/20 rounded-lg py-2 px-4">
+          {errors.general}
+        </p>
+      )}
+
+      <form onSubmit={onSubmit} className="flex flex-col gap-4">
+        <div className="grid gap-1.5">
+          <Label className="text-sm text-foreground/70 font-sans">Email</Label>
+          <Input
+            type="email"
+            value={formData.email}
+            onChange={(e) =>
+              setFormData({ ...formData, email: e.target.value })
+            }
+            placeholder="Ingresá tu email"
+            className={`border-border/50 focus:border-primary/50 ${errors.email ? "border-destructive" : ""}`}
+          />
+          {errors.email && (
+            <p className="text-xs text-destructive font-sans">{errors.email}</p>
+          )}
+        </div>
+
+        <div className="grid gap-1.5">
+          <Label className="text-sm text-foreground/70 font-sans">
+            Contraseña
+          </Label>
+          <div className="relative">
+            <Input
+              type={showPassword ? "text" : "password"}
+              value={formData.password}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
+              placeholder="Ingresá tu contraseña"
+              className={`border-border/50 focus:border-primary/50 pr-10 ${errors.password ? "border-destructive" : ""}`}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground/70"
+            >
+              {showPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+          {errors.password && (
+            <p className="text-xs text-destructive font-sans">
+              {errors.password}
+            </p>
+          )}
+        </div>
+
+        <Button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground tracking-widest uppercase text-sm mt-2"
+        >
+          {loading ? "Ingresando..." : "Ingresar"}
+        </Button>
+      </form>
 
       <div className="flex items-center justify-center gap-3">
         <div className="h-px flex-1 bg-border/40" />

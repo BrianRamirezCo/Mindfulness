@@ -71,7 +71,11 @@ function App() {
           path="/"
           element={<CheckAuth isAuthenticated={isAuthenticated} user={user} />}
         />
+
+        {/* Rutas independientes — fuera del CheckAuth */}
         <Route path="/auth/google/success" element={<GoogleSuccess />} />
+        <Route path="/auth/verify-email" element={<VerifyEmail />} />
+
         <Route
           path="/auth"
           element={
@@ -84,8 +88,8 @@ function App() {
           <Route path="register" element={<AuthRegister />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
           <Route path="reset-password" element={<ResetPassword />} />
-          <Route path="verify-email" element={<VerifyEmail />} />
         </Route>
+
         <Route
           path="/admin"
           element={
@@ -100,6 +104,7 @@ function App() {
           <Route path="features" element={<AdminFeatures />} />
           <Route path="reflections" element={<AdminReflections />} />
         </Route>
+
         <Route
           path="/shop"
           element={
@@ -127,6 +132,7 @@ function App() {
           <Route path="faq" element={<FaqPage />} />
           <Route path="cursos" element={<CoursesPage />} />
         </Route>
+
         <Route path="/unauth-page" element={<UnauthPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

@@ -3,6 +3,8 @@ const connectDB = require("./config/db.js");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 const passport = require("./config/passport");
 const authRouter = require("./routes/auth/auth-routes");
 const adminProductsRouter = require("./routes/admin/products-routes");
@@ -20,6 +22,39 @@ connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Seguridad — headers HTTP
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
+
+// Rate limiting — max 100 requests for 15 minutes per IP for general routes
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: {
+    success: false,
+    message: "Demasiadas solicitudes. Intentá de nuevo en unos minutos.",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Rate limiting more strict for auth routes — max 10 requests for 15 minutes per IP
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: process.env.NODE_ENV === "production" ? 10 : 100,
+  message: {
+    success: false,
+    message: "Demasiados intentos. Intentá de nuevo en 15 minutos.",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use(generalLimiter);
 
 app.use(
   cors({
@@ -40,7 +75,8 @@ app.use(cookieParser());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(passport.initialize());
-app.use("/api/auth", authRouter);
+
+app.use("/api/auth", authLimiter, authRouter);
 app.use("/api/admin/products", adminProductsRouter);
 app.use("/api/admin/orders", adminOrderRouter);
 app.use("/api/shop/products", shopProductsRouter);
@@ -54,6 +90,7 @@ app.use("/api/reflections", reflectionRouter);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ success: false, message: "Something went wrong" });
+  res.status(500).json({ success: false, message: "Error en el servidor" });
 });
+
 app.listen(PORT, () => console.log(`Server is now running on port ${PORT}`));
