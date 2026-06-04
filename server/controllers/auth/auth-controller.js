@@ -175,7 +175,7 @@ const loginUser = async (req, res) => {
         message: "No existe una cuenta con ese email",
       });
 
-    if (!checkUser.isVerified === false) {
+    if (checkUser.isVerified === false) {
       return res.json({
         success: false,
         message: "Verificá tu cuenta antes de ingresar",
