@@ -14,6 +14,7 @@ function VerifyEmail() {
   const [resendSuccess, setResendSuccess] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const email = searchParams.get("email");
 
   function handleChange(value, index) {
@@ -31,6 +32,7 @@ function VerifyEmail() {
       document.getElementById(`code-${index - 1}`)?.focus();
     }
   }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
