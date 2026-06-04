@@ -82,66 +82,68 @@ function VerifyEmail() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="text-center space-y-1">
-        <h1 className="font-serif text-3xl text-foreground tracking-wide">
-          Verificá tu cuenta
-        </h1>
-        <p className="text-sm text-foreground/50 font-sans">
-          Ingresá el código de 6 dígitos que enviamos a
-        </p>
-        <p className="text-sm text-primary font-sans font-medium">{email}</p>
-      </div>
-
-      {error && (
-        <p className="text-sm text-destructive font-sans text-center bg-destructive/5 border border-destructive/20 rounded-lg py-2 px-4">
-          {error}
-        </p>
-      )}
-
-      {resendSuccess && (
-        <p className="text-sm text-foreground font-sans text-center bg-secondary/20 border border-secondary/30 rounded-lg py-2 px-4">
-          Código reenviado correctamente
-        </p>
-      )}
-
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-        <div className="flex justify-center gap-2">
-          {code.map((digit, index) => (
-            <input
-              key={index}
-              id={`code-${index}`}
-              type="text"
-              inputMode="numeric"
-              maxLength={1}
-              value={digit}
-              onChange={(e) => handleChange(e.target.value, index)}
-              onKeyDown={(e) => handleKeyDown(e, index)}
-              className="w-11 h-14 text-center text-xl font-bold border border-border/50 rounded-lg bg-background focus:outline-none focus:border-primary/60 text-foreground font-sans"
-            />
-          ))}
+    <div className="flex min-h-screen w-full items-center justify-center bg-background px-4 py-12">
+      <div className="w-full max-w-md space-y-6">
+        <div className="text-center space-y-1">
+          <h1 className="font-serif text-3xl text-foreground tracking-wide">
+            Verificá tu cuenta
+          </h1>
+          <p className="text-sm text-foreground/50 font-sans">
+            Ingresá el código de 6 dígitos que enviamos a
+          </p>
+          <p className="text-sm text-primary font-sans font-medium">{email}</p>
         </div>
 
-        <Button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground tracking-widest uppercase text-sm"
-        >
-          {loading ? "Verificando..." : "Verificar cuenta"}
-        </Button>
-      </form>
+        {error && (
+          <p className="text-sm text-destructive font-sans text-center bg-destructive/5 border border-destructive/20 rounded-lg py-2 px-4">
+            {error}
+          </p>
+        )}
 
-      <div className="text-center">
-        <p className="text-sm text-foreground/50 font-sans">
-          ¿No recibiste el código?{" "}
-          <button
-            onClick={handleResend}
-            disabled={resendLoading}
-            className="text-primary hover:underline font-medium"
+        {resendSuccess && (
+          <p className="text-sm text-foreground font-sans text-center bg-secondary/20 border border-secondary/30 rounded-lg py-2 px-4">
+            Código reenviado correctamente
+          </p>
+        )}
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          <div className="flex justify-center gap-2">
+            {code.map((digit, index) => (
+              <input
+                key={index}
+                id={`code-${index}`}
+                type="text"
+                inputMode="numeric"
+                maxLength={1}
+                value={digit}
+                onChange={(e) => handleChange(e.target.value, index)}
+                onKeyDown={(e) => handleKeyDown(e, index)}
+                className="w-11 h-14 text-center text-xl font-bold border border-border/50 rounded-lg bg-background focus:outline-none focus:border-primary/60 text-foreground font-sans"
+              />
+            ))}
+          </div>
+
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground tracking-widest uppercase text-sm"
           >
-            {resendLoading ? "Enviando..." : "Reenviar"}
-          </button>
-        </p>
+            {loading ? "Verificando..." : "Verificar cuenta"}
+          </Button>
+        </form>
+
+        <div className="text-center">
+          <p className="text-sm text-foreground/50 font-sans">
+            ¿No recibiste el código?{" "}
+            <button
+              onClick={handleResend}
+              disabled={resendLoading}
+              className="text-primary hover:underline font-medium"
+            >
+              {resendLoading ? "Enviando..." : "Reenviar"}
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );
